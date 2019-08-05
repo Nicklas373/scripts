@@ -26,6 +26,9 @@ echo "NOTE: Write codename only!!!"
 read choice
 if [ "$choice" == "Mido" ];
 	then
+		# Import telegram environment
+		source "script/mido_telegram_env.sh"
+
 		echo "You're choose Xiaomi Redmi Note 4x (Mido)"
 		echo "Which compiler that you want to use?"
 		echo "1. GCC 9.1.1 + CLANG (VDSO)"
@@ -94,6 +97,9 @@ if [ "$choice" == "Mido" ];
 fi
 if [ "$choice" == "Lavender" ];
 	then
+		# Import telegram environment
+		source "script/lavender_telegram_env.sh"
+
 		echo "You're choose Xiaomi Redmi Note 7 (Lavender)"
 		echo "Which compiler that you want to use?"
 		echo "1. GCC 9.1.1 + CLANG (VDSO)"
