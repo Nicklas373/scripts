@@ -43,3 +43,7 @@ KERNEL_OUT="/mnt/c/Users/acer/Downloads/Clarity-Kernel"
 KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
 OUT_DIR="out/arch/arm64/boot/Image.gz-dtb"
 OUT_ZIP="${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
+
+# Extra Telegram Path
+TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
+
