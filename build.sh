@@ -57,7 +57,7 @@ if [ "$choice" == "Mido" ];
 				fi
 
 				# Begin kernel compiling
-				make_kernel_clang_mido
+				make_kernel_mido_clang
 				kernel_checking_mido
 		fi
 		if [ "$answer" == "2" ];
@@ -66,25 +66,26 @@ if [ "$choice" == "Mido" ];
 				source "script/mido_gcc_env.sh"
 
 				echo "Are you want to start clean build?"
-                echo "1. Yes"
-                echo "2. No"
-                echo "NOTE: Write yes/no only!!!"
-                read clean
-                if [ "$clean" == "yes" ];
+                		echo "1. Yes"
+               			echo "2. No"
+                		echo "NOTE: Write yes/no only!!!"
+                		read clean
+                		if [ "$clean" == "yes" ];
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
-                        cd ${KERNEL_SOURCE}
+                        			cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
 				fi
-                if [ "$clean" == "no" ]; then
+                		if [ "$clean" == "no" ];
+					then
 						echo "Cleaning abort :3"
-                else
-                        echo "Option invalid!!!"
+                		else
+                        			echo "Option invalid!!!"
 				fi
-				# Begin kernel compiling
-                make_kernel_gcc_mido
-                kernel_checking_mido
+			# Begin kernel compiling
+                	make_kernel_mido_gcc
+                	kernel_checking_mido
 		else
 			echo "Option Invalid"
 			echo "Return to main menu"
@@ -124,7 +125,7 @@ if [ "$choice" == "Lavender" ];
 				fi
 
 				# Begin kernel compiling
-				make_kernel_clang_lavender
+				make_kernel_lavender_clang
 				kernel_checking_lavender
 		fi
 		if [ "$answer" == "2" ];
@@ -133,25 +134,26 @@ if [ "$choice" == "Lavender" ];
 				source "script/lavender_gcc_env.sh"
 
 				echo "Are you want to start clean build?"
-                echo "1. Yes"
-                echo "2. No"
-                echo "NOTE: Write yes/no only!!!"
-                read clean
-                if [ "$clean" == "yes" ];
+                		echo "1. Yes"
+                		echo "2. No"
+                		echo "NOTE: Write yes/no only!!!"
+                		read clean
+                		if [ "$clean" == "yes" ];
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
-                        cd ${KERNEL_SOURCE}
+                        			cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
 				fi
-                if [ "$clean" == "no" ]; then
+                		if [ "$clean" == "no" ];
+				then
 						echo "Cleaning abort :3"
-                else
-                        echo "Option invalid!!!"
+                		else
+                        			echo "Option invalid!!!"
 				fi
-				# Begin kernel compiling
-                make_kernel_gcc_lavender
-                kernel_checking_lavender
+			# Begin kernel compiling
+                	make_kernel_lavender_gcc
+                	kernel_checking_lavender
 		else
 			echo "Option Invalid"
 			echo "Return to main menu"
