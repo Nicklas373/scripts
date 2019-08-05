@@ -314,12 +314,12 @@ kernel_upload(){
         then
 		cd ${KERNEL_SOURCE}
 		bot_complete_compile
-        ~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
-        cd ${KERNEL_SOURCE}
-		git --no-pager log --pretty=format:"%h - %s (%an)" --abbrev-commit 0ef79a4019bc6fd7cf94b659fdae73e501fe039b..HEAD > ${KERNEL_TEMP}/changelog.txt
-        ~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f  ${KERNEL_TEMP}/changelog.txt
-        mv ${KERNEL_TEMP}/*.zip ${KERNEL_OUT}
-        mv ${KERNEL_TEMP}/changelog.txt ${KERNEL_OUT}
+        	~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
+        	cd ${KERNEL_SOURCE}
+		git --no-pager log --pretty=format:"%h - %s (%an)" --abbrev-commit 0ca76ca27e7f9edadb238b5883e4301a57e384e8..HEAD > ${KERNEL_TEMP}/changelog.txt
+        	~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f  ${KERNEL_TEMP}/changelog.txt
+       		mv ${KERNEL_TEMP}/*.zip ${KERNEL_OUT}
+        	mv ${KERNEL_TEMP}/changelog.txt ${KERNEL_OUT}
         fi
 }
 
