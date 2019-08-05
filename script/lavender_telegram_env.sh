@@ -55,7 +55,7 @@ bot_template  "<b>New Clarity Kernel build is available!</b>" \
     "" \
     "<b>Kernel Version:</b><code> Linux ${TELEGRAM_KERNEL_VER}</code>" \
     "" \
-    "<b>Kernel Host:</b><code> ${TELEGRAM_COMPILER_NAME} ${TELEGRAM_COMPILER_HOST}</code>" \
+    "<b>Kernel Host:</b><code> ${TELEGRAM_COMPILER_NAME}@${TELEGRAM_COMPILER_HOST}</code>" \
     "" \
     "<b>Kernel Toolchain :</b><code> ${TELEGRAM_TOOLCHAIN_VER}</code>" \
     "" \
