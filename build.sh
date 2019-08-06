@@ -18,9 +18,6 @@
 source "script/telegram.sh"
 source "script/telegram_env.sh"
 
-# Extra Telegram Path
-TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
-
 # Main Program
 main(){
 echo "Which device that you want to compile ?"
@@ -144,7 +141,7 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 		BRANCH="lavender"
 
 		# Import git start commit
-		COMMIT="6db4202de14b79f9d4c56ded08d7a9fa60967e91"
+		COMMIT="80ad5c79229a5297248d6601e68633cd6cf96d95"
 
 		# Import separate environment
 		KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
@@ -201,7 +198,7 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 		if [ "$answer" == "2" ] || [ "$answer" == "bare metal" ]
 			then
 				# Import bare metal environment
-				source "script/lavender_gcc_env.sh"
+				source "script/gcc_env.sh"
 
 				echo ""
 				echo "Are you want to start clean build?"
@@ -210,7 +207,7 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 				echo ""
                 		echo "NOTE: Write yes/no or number only :3"
                 		read -s clean
-                		if [ "$clean" == "yes" ] || [ "$clean" == "1"]
+                		if [ "$clean" == "yes" ] || [ "$clean" == "1" ]
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
@@ -219,7 +216,7 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 						echo "Compiling begin"
 						echo ""
 				fi
-                		if [ "$clean" == "no" ] || [ "$clean" == "2"]
+                		if [ "$clean" == "no" ] || [ "$clean" == "2" ]
 				then
 						echo "Cleaning abort :3"
 						echo "Compiling begin..."
@@ -289,6 +286,10 @@ export_kernel(){
 # Kernel Checking
 kernel_checking(){
 echo "Checking kernel..."
+
+# Extra Telegram Path
+TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
+
 if [ -f "$OUT_DIR" ]
 then
 	echo "Kernel found"
