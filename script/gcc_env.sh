@@ -25,8 +25,6 @@ export KBUILD_BUILD_HOST=R_CORE
 # Kernel Builder Alias
 KERNEL_NAME="Clarity"
 KERNEL_SUFFIX="Kernel"
-KERNEL_CODE="Mido"
-KERNEL_REV="r4"
 KERNEL_TYPE="EAS"
 KERNEL_STATS="signed"
 KERNEL_DATE="$(date +%Y%m%d-%H%M)"
@@ -35,10 +33,5 @@ KERNEL_DATE="$(date +%Y%m%d-%H%M)"
 KERNEL_ANY="${HOME}/AnyKernel3"
 KERNEL_TEMP="${HOME}/Clarity-TEMP"
 KERNEL_OUT="/mnt/c/Users/acer/Downloads/Clarity-Kernel"
-KERNEL_SOURCE="${HOME}/kernel_xiaomi_msm8953-3.18"
 OUT_DIR="out/arch/arm64/boot/Image.gz-dtb"
 OUT_ZIP="${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
-
-# Extra Telegram Path
-TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
-

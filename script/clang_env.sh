@@ -2,7 +2,7 @@
 #
 # Copyright 2019, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
 #
-# Clarity Kernel Script || GCC Environment Script
+# Clarity Kernel Script || CLANG Environment Script
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
@@ -17,16 +17,19 @@
 # Kernel Compiler Path
 export ARCH=arm64
 export SUBARCH=arm64
-export CROSS_COMPILE=${HOME}/gcc-elf/bin/aarch64-elf-
-export CROSS_COMPILE_ARM32=${HOME}/gcc_elf/bin/arm-eabi-
+export CLANG_PATH=${HOME}/DTC/bin
+export LD_LIBRARY_PATH=${home}/DTC/lib64:$LD_LIBRARY_PATH
+export PATH=${CLANG_PATH}:${PATH}
+export CLANG_TRIPLE=aarch64-linux-gnu-
+export CLANG_TRIPLE_ARM32=arm-maestro-linux-gnueabi-
+export CROSS_COMPILE=${HOME}/gcc/bin/aarch64-maestro-linux-gnu-
+export CROSS_COMPILE_ARM32=${HOME}/gcc_arm32/bin/arm-maestro-linux-gnueabi-
 export KBUILD_BUILD_USER=Yukina
 export KBUILD_BUILD_HOST=R_CORE
 
 # Kernel Builder Alias
 KERNEL_NAME="Clarity"
 KERNEL_SUFFIX="Kernel"
-KERNEL_CODE="Lavender"
-KERNEL_REV="r3"
 KERNEL_TYPE="EAS"
 KERNEL_STATS="signed"
 KERNEL_DATE="$(date +%Y%m%d-%H%M)"
@@ -35,10 +38,5 @@ KERNEL_DATE="$(date +%Y%m%d-%H%M)"
 KERNEL_ANY="${HOME}/AnyKernel3"
 KERNEL_TEMP="${HOME}/Clarity-TEMP"
 KERNEL_OUT="/mnt/c/Users/acer/Downloads/Clarity-Kernel"
-KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
 OUT_DIR="out/arch/arm64/boot/Image.gz-dtb"
 OUT_ZIP="${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
-
-# Extra Telegram Path
-TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
-

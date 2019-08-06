@@ -16,150 +16,222 @@
 
 # Import Telegram Environment
 source "script/telegram.sh"
+source "script/telegram_env.sh"
+
+# Extra Telegram Path
+TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip"
 
 # Main Program
 main(){
 echo "Which device that you want to compile ?"
+echo ""
 echo "1. Xiaomi Redmi Note 4x (Mido)"
 echo "2. Xiaomi Redmi Note 7  (Lavender)"
-echo "NOTE: Write codename only!!!"
-read choice
-if [ "$choice" == "Mido" ];
+echo ""
+echo "NOTE: Write codename only :3"
+read -s choice
+if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 	then
-		# Import telegram environment
-		source "script/mido_telegram_env.sh"
+		# Import device codename
+		CODENAME="mido"
 
+		# Import device anykernel branch
+		BRANCH="mido"
+
+		# Import git start commit
+		COMMIT="d60e80035441cfc3e55ba9520d987482d24566a6"
+
+		# Import separate environment
+		KERNEL_SOURCE="${HOME}/kernel_xiaomi_msm8953-3.18"
+		KERNEL_CODE="Mido"
+		KERNEL_REV="r4"
+
+		# Import additional telegram environment
+		TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
+
+		echo ""
 		echo "You're choose Xiaomi Redmi Note 4x (Mido)"
+		echo ""
 		echo "Which compiler that you want to use?"
 		echo "1. GCC 9.1.1 + CLANG (VDSO)"
 		echo "2. GCC 9.1.0 Bare Metal (VDSO)"
-		echo "NOTE: Write number only!!!"
-		read answer
-		if [ "$answer" == "1" ];
+		echo ""
+		echo "NOTE: Write number or use bare metal or clang only :3"
+		read -s answer
+		if [ "$answer" == "1" ] || [ "$answer" == "clang" ]
 			then
 				# Import clang environment
-				source "script/mido_clang_env.sh"
+				source "script/clang_env.sh"
 
+				echo ""
 				echo "Are you want to start clean build?"
 				echo "1. Yes"
 				echo "2. No"
-				echo "NOTE: Write yes/no only!!!"
-				read clean
-				if [ "$clean" == "yes" ];
+				echo ""
+				echo "NOTE: Write yes/no or number :3"
+				read -s clean
+				if [ "$clean" == "yes" ] || [ "$clean" == "1" ];
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
 						cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
+						echo "Compiling begin..."
+						echo ""
 				fi
-				if [ "$clean" == "no" ];
+				if [ "$clean" == "no" ] || [ "$clean" == "2" ];
 					then
 						echo "Cleaning abort :3"
+						echo "Compiling begin..."
+						echo ""
 				else
-						echo "Option invalid!!!"
+						echo "Option invalid"
+						echo ""
+						echo "Return to main menu"
+						main
 				fi
 
 				# Begin kernel compiling
-				make_kernel_mido_clang
-				kernel_checking_mido
+				make_kernel_clang
+				kernel_checking
 		fi
-		if [ "$answer" == "2" ];
+		if [ "$answer" == "2" ] || [ "answer" == "bare metal" ]
 			then
 				# Import bare metal environment
-				source "script/mido_gcc_env.sh"
+				source "script/gcc_env.sh"
 
+				echo ""
 				echo "Are you want to start clean build?"
                 		echo "1. Yes"
                			echo "2. No"
-                		echo "NOTE: Write yes/no only!!!"
-                		read clean
-                		if [ "$clean" == "yes" ];
+				echo ""
+                		echo "NOTE: Write yes/no or number only :3"
+                		read -s clean
+                		if [ "$clean" == "yes" ] || [ "$clean" == "1" ]
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
                         			cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
+						echo "Compiling begin..."
+						echo ""
 				fi
-                		if [ "$clean" == "no" ];
+                		if [ "$clean" == "no" ] || [ "$clean" == "2" ]
 					then
 						echo "Cleaning abort :3"
+						echo "Compiling begin..."
+						echo ""
                 		else
-                        			echo "Option invalid!!!"
+                        			echo "Option invalid"
+						echo "Return to main menu"
+						main
 				fi
 			# Begin kernel compiling
-                	make_kernel_mido_gcc
-                	kernel_checking_mido
+                	make_kernel_gcc
+                	kernel_checking
 		else
 			echo "Option Invalid"
 			echo "Return to main menu"
 			main
 		fi
 fi
-if [ "$choice" == "Lavender" ];
+if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == "2" ]
 	then
-		# Import telegram environment
-		source "script/lavender_telegram_env.sh"
+		# Import device codename
+		CODENAME="lavender-perf"
+
+		# Import device anykernel branch
+		BRANCH="lavender"
+
+		# Import git start commit
+		COMMIT="6db4202de14b79f9d4c56ded08d7a9fa60967e91"
+
+		# Import separate environment
+		KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
+		KERNEL_CODE="Lavender"
+		KERNEL_REV="r3"
+
+		# Import additional telegram environment
+		TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
 
 		echo "You're choose Xiaomi Redmi Note 7 (Lavender)"
+		echo ""
 		echo "Which compiler that you want to use?"
 		echo "1. GCC 9.1.1 + CLANG (VDSO)"
 		echo "2. GCC 9.1.0 Bare Metal (VDSO)"
-		echo "NOTE: Write number only!!!"
-		read answer
-		if [ "$answer" == "1" ];
+		echo ""
+		echo "NOTE: Write number or tell bare metal or clang only :3"
+		read -s answer
+		if [ "$answer" == "1" ] || [ "$answer" == "clang" ]
 			then
 				# Import clang environment
 				source "script/lavender_clang_env.sh"
 
+				echo ""
 				echo "Are you want to start clean build?"
 				echo "1. Yes"
 				echo "2. No"
-				echo "NOTE: Write yes/no only!!!"
-				read clean
-				if [ "$clean" == "yes" ];
+				echo ""
+				echo "NOTE: Write yes/no or number only :3"
+				read -s clean
+				if [ "$clean" == "yes" ] || [ "$clean" == "1" ]
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
 						cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
+						echo "Compiling begin..."
+						echo ""
 				fi
-				if [ "$clean" == "no" ];
+				if [ "$clean" == "no" ] || [ "$clean" == "2" ]
 					then
 						echo "Cleaning abort :3"
+						echo "Compiling begin..."
+						echo ""
 				else
-						echo "Option invalid!!!"
+						echo "Option invalid"
+						echo "return to main menu"
+						main
 				fi
 
 				# Begin kernel compiling
-				make_kernel_lavender_clang
-				kernel_checking_lavender
+				make_kernel_clang
+				kernel_checking
 		fi
-		if [ "$answer" == "2" ];
+		if [ "$answer" == "2" ] || [ "$answer" == "bare metal" ]
 			then
 				# Import bare metal environment
 				source "script/lavender_gcc_env.sh"
 
+				echo ""
 				echo "Are you want to start clean build?"
                 		echo "1. Yes"
                 		echo "2. No"
-                		echo "NOTE: Write yes/no only!!!"
-                		read clean
-                		if [ "$clean" == "yes" ];
+				echo ""
+                		echo "NOTE: Write yes/no or number only :3"
+                		read -s clean
+                		if [ "$clean" == "yes" ] || [ "$clean" == "1"]
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
                         			cd ${KERNEL_SOURCE}
 						echo "Cleaning done :3"
+						echo "Compiling begin"
+						echo ""
 				fi
-                		if [ "$clean" == "no" ];
+                		if [ "$clean" == "no" ] || [ "$clean" == "2"]
 				then
 						echo "Cleaning abort :3"
+						echo "Compiling begin..."
+						echo ""
                 		else
-                        			echo "Option invalid!!!"
+                        			echo "Option invalid"
+						echo "Return to main menu"
+						main
 				fi
 			# Begin kernel compiling
-                	make_kernel_lavender_gcc
-                	kernel_checking_lavender
+                	make_kernel_gcc
+                	kernel_checking
 		else
 			echo "Option Invalid"
 			echo "Return to main menu"
@@ -168,12 +240,12 @@ if [ "$choice" == "Lavender" ];
 fi
 }
 
-# Kernel Compile Mido with Clang
-make_kernel_mido_clang() {
+# Kernel Compile with Clang
+make_kernel_clang() {
 		cd ${KERNEL_SOURCE}
 		start=$(date +%s)
 		bot_first_compile
-		make O=out mido_defconfig
+		make O=out ${CODENAME}_defconfig
 		make O=out ARCH=${ARCH} CC=clang \
 			   CLANG_TRIPLE=${CLANG_TRIPLE} \
 			   CLANG_TRIPLE_ARM32=${CLANG_TRIPLE_ARM32} \
@@ -183,125 +255,53 @@ make_kernel_mido_clang() {
 		end=$(date +%s)
 		seconds=$(echo "$end - $start" | bc)
 		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${CHEWY}/kernel_time.log
+		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${KERNEL_SOURCE}/kernel_time.log
 }
 
-# Kernel Compile Mido with Bare Metal
-make_kernel_mido_gcc() {
+# Kernel Compile with Bare Metal
+make_kernel_gcc() {
 		cd ${KERNEL_SOURCE}
 		start=$(date +%s)
 		bot_first_compile
-		make O=out mido_defconfig
+		make O=out ${CODENAME}_defconfig
 		make O=out ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} \
 		CROSS_COMPILE_ARM32=${CROSS_COMPILE_ARM32} -j$(nproc --all) -> ${KERNEL_SOURCE}/compile.log
 		end=$(date +%s)
 		seconds=$(echo "$end - $start" | bc)
 		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${CHEWY}/kernel_time.log
+		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${KERNEL_SOURCE}/kernel_time.log
 }
 
-
-# Kernel Compile Lavender with Clang
-make_kernel_lavender_clang() {
-		cd ${KERNEL_SOURCE}
-		start=$(date +%s)
-		bot_first_compile
-		make O=out lavender-perf_defconfig
-		make O=out ARCH=${ARCH} CC=clang \
-			   CLANG_TRIPLE=${CLANG_TRIPLE} \
-			   CLANG_TRIPLE_ARM32=${CLANG_TRIPLE_ARM32} \
-			   CROSS_COMPILE=${CROSS_COMPILE} \
-			   CROSS_COMPILE_ARM32=${CROSS_COMPILE_ARM32} \
-			   -j$(nproc --all) -> ${KERNEL_SOURCE}/compile.log
-		end=$(date +%s)
-		seconds=$(echo "$end - $start" | bc)
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${CHEWY}/kernel_time.log
-}
-
-# Kernel Compile Lavender with Bare Metal
-make_kernel_lavender_gcc() {
-		cd ${KERNEL_SOURCE}
-		start=$(date +%s)
-		bot_first_compile
-		make O=out lavender-perf_defconfig
-		make O=out ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} \
-		CROSS_COMPILE_ARM32=${CROSS_COMPILE_ARM32} -j$(nproc --all) -> ${KERNEL_SOURCE}/compile.log
-		end=$(date +%s)
-		seconds=$(echo "$end - $start" | bc)
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
-		awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${CHEWY}/kernel_time.log
-}
-
-# Kernel Build Mido
-build_kernel_mido(){
+# AnyKernel Build
+build_kernel(){
 		mv ${OUT_DIR} ${KERNEL_ANY}
 		cd ${KERNEL_ANY}
-		git checkout mido
+		git checkout ${BRANCH}
 		make -j4
 }
 
-# Kernel Build Lavender
-build_kernel_lavender(){
-		mv ${OUT_DIR} ${KERNEL_ANY}
-		cd ${KERNEL_ANY}
-		git checkout lavender
-		make -j4
-}
-
-# Clean Build Mido
-clean_kernel_mido(){
+# Clarity Export
+export_kernel(){
 		rm ${KERNEL_ANY}/Image.gz-dtb
-		mv ~/Clarity-Kernel-Mido-v1.0-signed.zip ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
+		mv ~/Clarity-Kernel-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
 }
 
-# Clean Build Lavender
-clean_kernel_lavender(){
-		rm ${KERNEL_ANY}/Image.gz-dtb
-		mv ~/Clarity-Kernel-Lavender-r2-signed.zip ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
-}
-
-# Kernel Checking Mido
-kernel_checking_mido(){
+# Kernel Checking
+kernel_checking(){
 echo "Checking kernel..."
 if [ -f "$OUT_DIR" ]
 then
 	echo "Kernel found"
 	echo "Continue to build kernel"
-	build_kernel_mido
+	build_kernel
 	bot_build_success
-	clean_kernel_mido
+	export_kernel
 	kernel_upload
 else
 	echo "Kernel not found"
 	echo "Cancel kernel to build"
 	bot_build_failed
 	cd ${KERNEL_SOURCE}
-	clean_kernel_mido
-	end=$(date +%s)
-	seconds=$(echo "$end - $start" | bc)
-	awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
-	awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "Kernel Compiling Time: %d:%02d:%02d\n", t/3600000, t/60000%60, t/1000%60}' -> ${KERNEL_SOURCE}/kernel_time.log
-fi
-}
-
-# Kernel Checking Lavender
-kernel_checking_lavender(){
-echo "Checking kernel..."
-if [ -f "$OUT_DIR" ]
-then
-	echo "Kernel found"
-	echo "Continue to build kernel"
-	build_kernel_lavender
-	bot_build_success
-	clean_kernel_lavender
-	kernel_upload
-else
-	echo "Kernel not found"
-	echo "Cancel kernel to build"
-	bot_build_failed
-	cd ${KERNEL_SOURCE}
-	clean_kernel_lavender
 	end=$(date +%s)
 	seconds=$(echo "$end - $start" | bc)
 	awk -v t=$seconds 'BEGIN{t=int(t*1000); printf "##################################\n# Kernel Compiling Time: %d:%02d:%02d#\n##################################\n", t/3600000, t/60000%60, t/1000%60}'
@@ -316,7 +316,7 @@ kernel_upload(){
 		bot_complete_compile
         	~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
         	cd ${KERNEL_SOURCE}
-		git --no-pager log --pretty=format:"%h - %s (%an)" --abbrev-commit 0ca76ca27e7f9edadb238b5883e4301a57e384e8..HEAD > ${KERNEL_TEMP}/changelog.txt
+		git --no-pager log --pretty=format:"%h - %s (%an)" --abbrev-commit ${COMMIT}..HEAD > ${KERNEL_TEMP}/changelog.txt
         	~/telegram.sh/telegram -t ${TELEGRAM_BOT_ID} -c ${TELEGRAM_GROUP_ID} -f  ${KERNEL_TEMP}/changelog.txt
        		mv ${KERNEL_TEMP}/*.zip ${KERNEL_OUT}
         	mv ${KERNEL_TEMP}/changelog.txt ${KERNEL_OUT}

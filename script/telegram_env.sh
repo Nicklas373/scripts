@@ -16,11 +16,11 @@
 
 # Import telegram bot environment
 bot_env() {
-TELEGRAM_KERNEL_VER=$(cat ~/kernel_xiaomi_msm8953-3.18/out/.config | grep Linux/arm64 | cut -d " " -f3)
-TELEGRAM_UTS_VER=$(cat ~/kernel_xiaomi_msm8953-3.18/out/include/generated/compile.h | grep UTS_VERSION | cut -d '"' -f2)
-TELEGRAM_COMPILER_NAME=$(cat ~/kernel_xiaomi_msm8953-3.18/out/include/generated/compile.h | grep LINUX_COMPILE_BY | cut -d '"' -f2)
-TELEGRAM_COMPILER_HOST=$(cat ~/kernel_xiaomi_msm8953-3.18/out/include/generated/compile.h | grep LINUX_COMPILE_HOST | cut -d '"' -f2)
-TELEGRAM_TOOLCHAIN_VER=$(cat ~/kernel_xiaomi_msm8953-3.18/out/include/generated/compile.h | grep LINUX_COMPILER | cut -d '"' -f2)
+TELEGRAM_KERNEL_VER=$(cat ${KERNEL_SOURCE}/out/.config | grep Linux/arm64 | cut -d " " -f3)
+TELEGRAM_UTS_VER=$(cat ${KERNEL_SOURCE}/out/include/generated/compile.h | grep UTS_VERSION | cut -d '"' -f2)
+TELEGRAM_COMPILER_NAME=$(cat ${KERNEL_SOURCE}/out/include/generated/compile.h | grep LINUX_COMPILE_BY | cut -d '"' -f2)
+TELEGRAM_COMPILER_HOST=$(cat ${KERNEL_SOURCE}/out/include/generated/compile.h | grep LINUX_COMPILE_HOST | cut -d '"' -f2)
+TELEGRAM_TOOLCHAIN_VER=$(cat ${KERNEL_SOURCE}/out/include/generated/compile.h | grep LINUX_COMPILER | cut -d '"' -f2)
 }
 
 # Telegram Bot Service || Compiling Notification
@@ -39,7 +39,7 @@ bot_template  "<b>||*HANA-CI Build Bot*||</b>" \
               "" \
               "<b>Clarity Kernel build Start!</b>" \
               "" \
-              "<b>Device :</b><code> Xiaomi Redmi Note 4x</code>" \
+              "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
               "" \
               "<b>Latest commit :</b><code> $(git --no-pager log --pretty=format:'"%h - %s (%an)"' -1) </code>"
 }
@@ -49,7 +49,7 @@ bot_complete_compile() {
 bot_env
 bot_template  "<b>New Clarity Kernel build is available!</b>" \
     "" \
-    "<b>Device :</b><code> Xiaomi Redmi Note 4x </code>" \
+    "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
     "" \
     "<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" \
     "" \
