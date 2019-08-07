@@ -36,7 +36,7 @@ if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 		BRANCH="mido"
 
 		# Import git start commit
-		COMMIT="d60e80035441cfc3e55ba9520d987482d24566a6"
+		COMMIT="7bd238ecd44aad4dda29cc2a327be59316cd1aec"
 
 		# Import separate environment
 		KERNEL_SOURCE="${HOME}/kernel_xiaomi_msm8953-3.18"
@@ -67,32 +67,32 @@ if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 				echo ""
 				echo "NOTE: Write yes/no or number :3"
 				read -s clean
-				if [ "$clean" == "yes" ] || [ "$clean" == "1" ];
+				if [ "$clean" == "yes" ] || [ "$clean" == "1" ]
 					then
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
 						cd ${KERNEL_SOURCE}
+						echo ""
 						echo "Cleaning done :3"
 						echo "Compiling begin..."
 						echo ""
-				fi
-				if [ "$clean" == "no" ] || [ "$clean" == "2" ];
+				elif [ "$clean" == "no" ] || [ "$clean" == "2" ]
 					then
+						echo ""
 						echo "Cleaning abort :3"
 						echo "Compiling begin..."
 						echo ""
 				else
+						echo ""
 						echo "Option invalid"
 						echo ""
 						echo "Return to main menu"
 						main
 				fi
-
 				# Begin kernel compiling
 				make_kernel_clang
 				kernel_checking
-		fi
-		if [ "$answer" == "2" ] || [ "answer" == "bare metal" ]
+		elif [ "$answer" == "2" ] || [ "answer" == "bare metal" ]
 			then
 				# Import bare metal environment
 				source "script/gcc_env.sh"
@@ -109,16 +109,18 @@ if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
                         			cd ${KERNEL_SOURCE}
+						echo ""
 						echo "Cleaning done :3"
 						echo "Compiling begin..."
 						echo ""
-				fi
-                		if [ "$clean" == "no" ] || [ "$clean" == "2" ]
+                		elif [ "$clean" == "no" ] || [ "$clean" == "2" ]
 					then
+						echo ""
 						echo "Cleaning abort :3"
 						echo "Compiling begin..."
 						echo ""
                 		else
+						echo ""
                         			echo "Option invalid"
 						echo "Return to main menu"
 						main
@@ -131,8 +133,7 @@ if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 			echo "Return to main menu"
 			main
 		fi
-fi
-if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == "2" ]
+elif [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == "2" ]
 	then
 		# Import device codename
 		CODENAME="lavender-perf"
@@ -141,7 +142,7 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 		BRANCH="lavender"
 
 		# Import git start commit
-		COMMIT="80ad5c79229a5297248d6601e68633cd6cf96d95"
+		COMMIT="2349bedd4fa1d207f3d4b25aaeebf3d36f453d4a"
 
 		# Import separate environment
 		KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
@@ -176,12 +177,13 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
 						cd ${KERNEL_SOURCE}
+						echo ""
 						echo "Cleaning done :3"
 						echo "Compiling begin..."
 						echo ""
-				fi
-				if [ "$clean" == "no" ] || [ "$clean" == "2" ]
+				elif [ "$clean" == "no" ] || [ "$clean" == "2" ]
 					then
+						echo ""
 						echo "Cleaning abort :3"
 						echo "Compiling begin..."
 						echo ""
@@ -194,8 +196,8 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 				# Begin kernel compiling
 				make_kernel_clang
 				kernel_checking
-		fi
-		if [ "$answer" == "2" ] || [ "$answer" == "bare metal" ]
+
+		elif [ "$answer" == "2" ] || [ "$answer" == "bare metal" ]
 			then
 				# Import bare metal environment
 				source "script/gcc_env.sh"
@@ -212,16 +214,18 @@ if [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" == 
 						cd ${KERNEL_SOURCE}/out
 						make clean && make mrproper
                         			cd ${KERNEL_SOURCE}
+						echo ""
 						echo "Cleaning done :3"
 						echo "Compiling begin"
 						echo ""
-				fi
-                		if [ "$clean" == "no" ] || [ "$clean" == "2" ]
+                		elif [ "$clean" == "no" ] || [ "$clean" == "2" ]
 				then
+						echo ""
 						echo "Cleaning abort :3"
 						echo "Compiling begin..."
 						echo ""
                 		else
+						echo ""
                         			echo "Option invalid"
 						echo "Return to main menu"
 						main
