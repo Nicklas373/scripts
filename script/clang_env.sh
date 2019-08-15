@@ -17,8 +17,8 @@
 # Kernel Compiler Path
 export ARCH=arm64
 export SUBARCH=arm64
-export CLANG_PATH=${HOME}/DTC/bin
-export LD_LIBRARY_PATH=${home}/DTC/lib64:$LD_LIBRARY_PATH
+export CLANG_PATH=${HOME}/aosp-clang/bin
+export LD_LIBRARY_PATH=${home}/aosp-clang/lib64:$LD_LIBRARY_PATH
 export PATH=${CLANG_PATH}:${PATH}
 export CLANG_TRIPLE=aarch64-linux-gnu-
 export CLANG_TRIPLE_ARM32=arm-maestro-linux-gnueabi-

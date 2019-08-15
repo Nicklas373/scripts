@@ -36,12 +36,12 @@ if [ "$choice" == "Mido" ] || [ "$choice" == "mido" ] || [ "$choice" == "1" ]
 		BRANCH="mido"
 
 		# Import git start commit
-		COMMIT="7bd238ecd44aad4dda29cc2a327be59316cd1aec"
+		COMMIT="78ea93a97e642279d0bbb86032d6cbda204471a1"
 
 		# Import separate environment
 		KERNEL_SOURCE="${HOME}/kernel_xiaomi_msm8953-3.18"
 		KERNEL_CODE="Mido"
-		KERNEL_REV="r4"
+		KERNEL_REV="r5"
 
 		# Import additional telegram environment
 		TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
@@ -142,12 +142,12 @@ elif [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" =
 		BRANCH="lavender"
 
 		# Import git start commit
-		COMMIT="2349bedd4fa1d207f3d4b25aaeebf3d36f453d4a"
+		COMMIT="5b8f5ec43c167014a0c5bcb9c46eace27d02e632"
 
 		# Import separate environment
 		KERNEL_SOURCE="${HOME}/kernel_xiaomi_lavender"
 		KERNEL_CODE="Lavender"
-		KERNEL_REV="r3"
+		KERNEL_REV="r4"
 
 		# Import additional telegram environment
 		TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
@@ -163,7 +163,7 @@ elif [ "$choice" == "Lavender" ] || [ "$choice" == "lavender" ] || [ "$choice" =
 		if [ "$answer" == "1" ] || [ "$answer" == "clang" ]
 			then
 				# Import clang environment
-				source "script/lavender_clang_env.sh"
+				source "script/clang_env.sh"
 
 				echo ""
 				echo "Are you want to start clean build?"
