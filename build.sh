@@ -284,7 +284,7 @@ build_kernel(){
 # Clarity Export
 export_kernel(){
 		rm ${KERNEL_ANY}/Image.gz-dtb
-		mv ~/Clarity-Kernel-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
+		mv Clarity-Kernel-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_TYPE}-${KERNEL_STATS}-${KERNEL_DATE}.zip
 }
 
 # Kernel Checking
