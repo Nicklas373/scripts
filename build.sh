@@ -235,7 +235,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				read -s build_type
 				if [ "$build_type" == "1" ]
 					then
+						cd ${KERNEL}
 						make clean && make mrproper
+						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
 						echo "Upss dirty dude :v"
@@ -255,9 +257,17 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 
 				# Switch to Clarity Branch
                                 cd ${HOME}/hana/mido
-                                git checkout dev/kasumi
-                                cd ${HOME}/hana/AnyKernel3
-                                git checkout mido
+				if [ "$kernel_ver" == 2 ]
+					then
+						git checkout dev/kasumi-10
+						cd ${HOME}/hana/AnyKernel3
+						git checkout yukina/10
+				elif [ "$kernel_ver" == 1 ]
+					then
+                                		git checkout dev/kasum
+						cd ${HOME}/hana/AnyKernel3
+						git checkout mido
+				fi
                                 cd ${HOME}/hana
 
 				# Import git start commit
