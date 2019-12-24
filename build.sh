@@ -332,19 +332,21 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		export KBUILD_BUILD_USER=Kasumi
 		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/lavender"
-		KERNEL_TEMP="${HOME}/hana/TEMP"}
+		KERNEL_TEMP="${HOME}/hana/TEMP"
 		CODENAME="lavender"
 		KERNEL_CODE="Lavender"
 		KERNEL_SUFFIX="Kernel"
-		KERNEL_DATE="$(date +%Y%m%d-%H%M)"}
+		KERNEL_DATE="$(date +%Y%m%d-%H%M)"
 		TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
 		export TELEGRAM_SUCCESS="CAADBQADhQcAAhIzkhBQ0UsCTcSAWxYE"
-		export TELEGRAM_FAIL="CAADBQADfgcAAhIzkhBSDI8P9doS7BYE"}
+		export TELEGRAM_FAIL="CAADBQADfgcAAhIzkhBSDI8P9doS7BYE"
 		TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
 
 		# Define Android Version
 		echo "Which android version for this kernel ?"
 		echo ""
+		echo "1. 9"
+		echo "2. 10"
 		echo "3. 9 - 10"
 		echo ""
 		echo "NOTE: Write number only!"
@@ -382,7 +384,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r12-sdm660.0/-友希那-Kernel-r12-sdm660.0'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-戸山-Kernel-r12-sdm660.0/-友希那-Kernel-r12-sdm660.0'  ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		elif [ "$kernel_stat" == "2" ]
 			then
 				# Extend Environment
@@ -390,7 +392,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r12-sdm660.0/-戸山-Kernel-r12-sdm660.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-友希那-Kernel-r12-sdm660.0/-戸山-Kernel-r12-sdm660.0/g'  ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		fi
 
 		# Define Kernel Environment
@@ -429,7 +431,6 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 
 		# Compile time
 		compile
-	fi
 fi
 }
 

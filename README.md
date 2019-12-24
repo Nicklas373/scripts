@@ -11,9 +11,4 @@ Just install common component for compiling kernel (include ccache) and you can 
 	- Xiaomi Redmi Note 4x (Mido)
 	- Xiaomi Redmi Note 7  (Lavender)
 
-# Compatible for:
-	- Semaphore-CI
-	- Circle-CI
-	- Drone-CI
-
 Thank you :3
