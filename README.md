@@ -6,3 +6,14 @@ Just adjust ALIAS to yourself environment directories in script folder. And you'
 
 I'm not provide any guide to you if want to use this script, cause this is not really a complex scripts.
 Just install common component for compiling kernel (include ccache) and you can use it.
+
+# Available for:
+	- Xiaomi Redmi Note 4x (Mido)
+	- Xiaomi Redmi Note 7  (Lavender)
+
+# Compatible for:
+	- Semaphore-CI
+	- Circle-CI
+	- Drone-CI
+
+Thank you :3
