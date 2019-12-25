@@ -235,7 +235,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				read -s build_type
 				if [ "$build_type" == "1" ]
 					then
+						cd ${KERNEL}/out
 						make clean && make mrproper
+						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
 						echo "Upss dirty dude :v"
@@ -255,9 +257,17 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 
 				# Switch to Clarity Branch
                                 cd ${HOME}/hana/mido
-                                git checkout dev/kasumi
-                                cd ${HOME}/hana/AnyKernel3
-                                git checkout mido
+				if [ "$kernel_ver" == 2 ]
+					then
+						git checkout dev/kasumi-10
+						cd ${HOME}/hana/AnyKernel3
+						git checkout yukina/10
+				elif [ "$kernel_ver" == 1 ]
+					then
+                                		git checkout dev/kasum
+						cd ${HOME}/hana/AnyKernel3
+						git checkout mido
+				fi
                                 cd ${HOME}/hana
 
 				# Import git start commit
@@ -273,7 +283,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				read -s build_type
 				if [ "$build_type" == "1" ]
 					then
+						cd ${KERNEL}/out
 						make clean && make mrproper
+						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
 						echo "Upss dirty dude :v"
@@ -311,7 +323,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				read -s build_type
 				if [ "$build_type" == "1" ]
 					then
+						cd ${KERNEL}/out
 						make clean && make mrproper
+						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
 						echo "Upss dirty dude :v"
@@ -330,7 +344,8 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 
 		# Define Kernel Environment}
 		export KBUILD_BUILD_USER=Kasumi
-		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz-dtb"
+		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz"
+		DTB="${HOME}/hana/lavender/out/arch/arm64/boot/dts/qcom"
 		KERNEL="${HOME}/hana/lavender"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
 		CODENAME="lavender"
@@ -423,7 +438,9 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		read -s build_type
 		if [ "$build_type" == "1" ]
 			then
+				cd ${KERNEL}/out
 				make clean && make mrproper
+				cd ${HOME}/hana
 		elif [ "$build_type" == "2" ]
 			then
 				echo "Upss dirty dude :v"
@@ -437,10 +454,14 @@ fi
 # Compile
 function compile() {
 	cd ${KERNEL}
+	rm ${IMAGE}
+	rm compile.log
+	rm ${KERNEL_TEMP}/*.zip
+	rm ${KERNEL_TEMP}/*.log
 	bot_first_compile
 	cd ${HOME}/hana
 	START=$(date +"%s")
-	make -s -C ${KERNEL} ${CODENAME}_defconfig O=out
+	make -C ${KERNEL} ${CODENAME}_defconfig O=out
 	PATH="${HOME}/clang-10/bin/:${PATH}" \
 	make -C ${KERNEL} -j$(nproc --all) -> ${KERNEL}/compile.log O=out \
 							CC=clang \
@@ -464,8 +485,19 @@ function compile() {
 	cd ${KERNEL}
 	bot_build_success
 	cd ..
+	# Cleanup dtb and kernel old image before push
+	rm AnyKernel3/Image.gz-dtb
+	rm AnyKernel3/dtbs/*.dtb
+	rm AnyKernel3/kernel/Image.gz
 	sendStick "${TELEGRAM_SUCCESS}"
-	cp ${IMAGE} AnyKernel3/Image.gz-dtb
+	if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ];
+		then
+			cp ${IMAGE} AnyKernel3/Image.gz-dtb
+	elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$codename" == "2" ];
+		then
+			cp ${IMAGE} AnyKernel3/kernel
+			cp ${DTB}/*.dtb AnyKernel3/dtbs
+	fi
 	anykernel
 	kernel_upload
 }
@@ -481,11 +513,6 @@ function anykernel() {
 function kernel_upload(){
 	cd ${KERNEL}
 	bot_complete_compile
-	if [ "$KERNEL_CODENAME" == "0" ];
-		then
-			cd ${KERNEL_TEMP}
-	fi
-	cd ${KERNEL}
 	git --no-pager log --pretty=format:"%h - %s (%an)" --abbrev-commit ${COMMIT}..HEAD > ${KERNEL_TEMP}/git.log
 	cd ${KERNEL_TEMP}
 	curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip" https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
