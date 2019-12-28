@@ -117,14 +117,36 @@ echo "1. Xiaomi Redmi Note 4x (Mido)"
 echo "2. Xiaomi Redmi Note 7 (Lavender)"
 echo ""
 echo "NOTE: Write codename only!"
-read -s codename
+read codename
+echo ""
+
+echo "Compiler that you want to use compile ?"
+echo ""
+echo "1. Clang 10.0.0"
+echo "2. Clang 10.0.3"
+echo ""
+echo "NOTE: Write number only!"
+read compiler
+echo ""
+
 if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ]
 	then
 		# Define ARCH
 		export ARCH=arm64
 
-		# Define Clang path
-		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+	if [ "$compiler" == "1" ]
+		then
+			# Define Clang path
+			export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+	elif [ "$compiler" == "2" ]
+		then
+			# Define Clang path
+			export CLANG_PATH=${HOME}/hana/clang/bin
+			export PATH=${CLANG_PATH}:${PATH}
+			export CLANG_TRIPLE=aarch64-linux-gnu-
+			export CROSS_COMPILE=${HOME}/hana/gcc/bin/aarch64-linux-gnu-
+			export CROSS_COMPILE_ARM32=${HOME}/hana/gcc_arm32/bin/arm-linux-gnueabi-
+	fi
 
 		# Define Kernel Environment
 		export KBUILD_BUILD_USER=Kasumi
@@ -148,7 +170,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 		echo "3. Clarity Kernel (EAS UC)"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s kernel_name
+		read kernel_name
+		echo ""
 
 		# Define Android Version
 		echo "Which android version for this kernel ?"
@@ -158,7 +181,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 		echo "3. 9 - 10"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s kernel_ver
+		read kernel_ver
+		echo ""
 
 		if [ "$kernel_ver" == "1" ]
 			then
@@ -184,7 +208,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 		echo "2. BETA"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s kernel_stat
+		read kernel_stat
+		echo ""
 
 		if [ "$kernel_stat" == "1" ]
 			then
@@ -193,7 +218,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r15-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r15-LA.UM.8.6.r1-02900-89xx.0'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-戸山-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
 		elif [ "$kernel_stat" == "2" ]
 			then
 				# Extend Environment
@@ -201,7 +226,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r15-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r15-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-友希那-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
 		fi
 
 		# Begin Script
@@ -219,11 +244,18 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
                                 cd ${HOME}/hana/mido
                                 git checkout pie
                                 cd ${HOME}/hana/AnyKernel3
-                                git checkout caf/mido
-                                cd ${HOME}/hana
+
+		# Use proper anykernel branch for android 10
+		if [ "$kernel_ver" == "1" ]
+			then
+				git checkout caf/mido
+		else
+				git checkout mido-10
+		fi
+				cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="cf6e598b50e69b86b06bb0e7bb8b7263d656e8a7"
+				COMMIT="1db74c045cad77d37578b457e11f7637e749fb84"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -232,7 +264,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				echo "2. Dirty"
 				echo ""
 				echo "NOTE: Write number only!"
-				read -s build_type
+				read build_type
+				echo ""
 				if [ "$build_type" == "1" ]
 					then
 						cd ${KERNEL}/out
@@ -249,7 +282,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 			then
 				# Define Kernel Environment
 				KERNEL_SCHED="EAS"
-				KERNEL_REV="r15"
+				KERNEL_REV="r16"
 				KERNEL_NAME="Clarity"
 
 				# Define Specific Telegram Filename
@@ -257,21 +290,21 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 
 				# Switch to Clarity Branch
                                 cd ${HOME}/hana/mido
+				cd ${KERNEL}
+				git checkout dev/kasumi
 				if [ "$kernel_ver" == 2 ]
 					then
-						git checkout dev/kasumi-10
 						cd ${HOME}/hana/AnyKernel3
-						git checkout yukina/10
+						git checkout mido-10
 				elif [ "$kernel_ver" == 1 ]
 					then
-                                		git checkout dev/kasum
 						cd ${HOME}/hana/AnyKernel3
 						git checkout mido
 				fi
                                 cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="24861e2c14d1aee95a0c272767d9361d28eaf065"
+				COMMIT="a9d0ad1a044f2adee63dfb1d1d56366ad4d246b2"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -280,7 +313,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				echo "2. Dirty"
 				echo ""
 				echo "NOTE: Write number only!"
-				read -s build_type
+				read build_type
+				echo ""
 				if [ "$build_type" == "1" ]
 					then
 						cd ${KERNEL}/out
@@ -306,12 +340,19 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				# Switch to Clarity-UC Branch
                                 cd ${HOME}/hana/mido
                                 git checkout dev/kasumi-uc
-                                cd ${HOME}/hana/AnyKernel3
-                                git checkout mido
+				if [ "$kernel_ver" == 1 ]
+					then
+						cd ${HOME}/hana/AnyKernel3
+						git checkout mido
+				elif [ "$kernel_ver" == 2 ]
+					then
+						cd ${HOME}/hana/AnyKernel3
+						git checkout mido-10
+				fi
                                 cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="ba0c5c2dca96c160fcab9affe152532ba80070d8"
+				COMMIT="faf1e5b5d6c0905b360950e6990c6be581f65c2d"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -320,7 +361,8 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				echo "2. Dirty"
 				echo ""
 				echo "NOTE: Write number only!"
-				read -s build_type
+				read build_type
+				echo ""
 				if [ "$build_type" == "1" ]
 					then
 						cd ${KERNEL}/out
@@ -339,8 +381,19 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		# Define ARCH
 		export ARCH=arm64
 
-		# Define Clang path
-		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+	if [ "$compiler" == "1" ]
+		then
+			# Define Clang path
+			export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+	elif [ "$compiler" == "2" ]
+		then
+			# Define Clang path
+			export CLANG_PATH=${HOME}/hana/clang/bin
+			export PATH=${CLANG_PATH}:${PATH}
+			export CLANG_TRIPLE=aarch64-linux-gnu-
+			export CROSS_COMPILE=${HOME}/hana/gcc/bin/aarch64-linux-gnu-
+			export CROSS_COMPILE_ARM32=${HOME}/hana/gcc_arm32/bin/arm-linux-gnueabi-
+	fi
 
 		# Define Kernel Environment}
 		export KBUILD_BUILD_USER=Kasumi
@@ -390,7 +443,8 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		echo "2. BETA"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s kernel_stat
+		read kernel_stat
+		echo ""
 
 		if [ "$kernel_stat" == "1" ]
 			then
@@ -399,7 +453,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r12-sdm660.0/-友希那-Kernel-r12-sdm660.0'  ${KERNEL}/arch/arm64/configs/lavender_defconfig
+				sed -i -e 's/-戸山-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		elif [ "$kernel_stat" == "2" ]
 			then
 				# Extend Environment
@@ -407,7 +461,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r12-sdm660.0/-戸山-Kernel-r12-sdm660.0/g'  ${KERNEL}/arch/arm64/configs/lavender_defconfig
+				sed -i -e 's/-友希那-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/-戸山-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		fi
 
 		# Define Kernel Environment
@@ -435,7 +489,8 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		echo "2. Dirty"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s build_type
+		read build_type
+		echo ""
 		if [ "$build_type" == "1" ]
 			then
 				cd ${KERNEL}/out
