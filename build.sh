@@ -3,8 +3,7 @@
 # Copyright 2019, Najahiiii <najahiii@outlook.co.id>
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
 # Copyright 2019, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
-# Copyright 2016-2019, HANA-CI
-# Build Project
+# Copyright 2016-2019, HANA-CI Build Project
 #
 # Clarity Kernel Builder Script || Main Script
 #
