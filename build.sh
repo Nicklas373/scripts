@@ -1,9 +1,9 @@
-#!bin/bash
+#!/bin/bash
 #
 # Copyright 2019, Najahiiii <najahiii@outlook.co.id>
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
 # Copyright 2019, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
-# Copyright 2016-2019, HANA-CI Build Project
+# Copyright 2016-2020, HANA-CI Build Project
 #
 # Clarity Kernel Builder Script || Main Script
 #
@@ -45,13 +45,9 @@ bot_template "<b>|| HANA-CI Build Bot ||</b>" \
 	      "<b>${KERNEL_NAME} Kernel build Start!</b>" \
 	      "" \
 	      "<b>Build Status :</b><code> ${KERNEL_RELEASE} </code>" \
-              "" \
               "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
-              "" \
 	      "<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
-	      "" \
 	      "<b>Kernel Scheduler :</b><code> ${KERNEL_SCHED} </code>" \
-	      "" \
               "<b>Latest commit :</b><code> $(git --no-pager log --pretty=format:'"%h - %s (%an)"' -1) </code>"
 }
 
@@ -63,28 +59,20 @@ bot_template "<b>|| HANA-CI Build Bot ||</b>" \
     "<b>New ${KERNEL_NAME} Kernel Build Is Available!</b>" \
     "" \
     "<b>Build Status :</b><code> ${KERNEL_RELEASE} </code>" \
-    "" \
     "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
-    "" \
     "<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
+    "<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" " \
     "" \
     "<b>Kernel Scheduler :</b><code> ${KERNEL_SCHED} </code>" \
-    "" \
-    "<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" \
-    "" \
     "<b>Kernel Version:</b><code> Linux ${TELEGRAM_KERNEL_VER}</code>" \
-    "" \
     "<b>Kernel Host:</b><code> ${TELEGRAM_COMPILER_NAME}@${TELEGRAM_COMPILER_HOST}</code>" \
-    "" \
     "<b>Kernel Toolchain :</b><code> ${TELEGRAM_TOOLCHAIN_VER}</code>" \
     "" \
     "<b>UTS Version :</b><code> ${TELEGRAM_UTS_VER}</code>" \
-    "" \
     "<b>Latest commit :</b><code> $(git --no-pager log --pretty=format:'"%h - %s (%an)"' -1)</code>" \
-    "" \
     "<b>Compile Time :</b><code> $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s)</code>" \
     "" \
-    "<b>                  HANA-CI Build Project | 2016-2019                     </b>"
+    "<b>                  HANA-CI Build Project | 2016-2020                     </b>"
 }
 
 # Telegram bot message || success notification
@@ -119,33 +107,13 @@ echo "NOTE: Write codename only!"
 read codename
 echo ""
 
-echo "Compiler that you want to use compile ?"
-echo ""
-echo "1. Clang 10.0.0"
-echo "2. Clang 10.0.3"
-echo ""
-echo "NOTE: Write number only!"
-read compiler
-echo ""
-
 if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ]
 	then
 		# Define ARCH
 		export ARCH=arm64
 
-	if [ "$compiler" == "1" ]
-		then
-			# Define Clang path
-			export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
-	elif [ "$compiler" == "2" ]
-		then
-			# Define Clang path
-			export CLANG_PATH=${HOME}/hana/clang/bin
-			export PATH=${CLANG_PATH}:${PATH}
-			export CLANG_TRIPLE=aarch64-linux-gnu-
-			export CROSS_COMPILE=${HOME}/hana/gcc/bin/aarch64-linux-gnu-
-			export CROSS_COMPILE_ARM32=${HOME}/hana/gcc_arm32/bin/arm-linux-gnueabi-
-	fi
+		# Define Clang path
+		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
 
 		# Define Kernel Environment
 		export KBUILD_BUILD_USER=Kasumi
@@ -254,7 +222,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="1db74c045cad77d37578b457e11f7637e749fb84"
+				COMMIT="a26d9fbee83d68d9d10d6995a7ad6cca4ab72638"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -272,7 +240,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
-						echo "Upss dirty dude :v"
+						echo "Dirty build :3"
 				fi
 
 				# Compile time
@@ -303,7 +271,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
                                 cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="a9d0ad1a044f2adee63dfb1d1d56366ad4d246b2"
+				COMMIT="5a3cc31e7bb17cb411ae477bf76407c0656cd6de"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -321,7 +289,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
-						echo "Upss dirty dude :v"
+						echo "Dirty Build"
 				fi
 
 				# Compile time
@@ -369,7 +337,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 						cd ${HOME}/hana
 				elif [ "$build_type" == "2" ]
 					then
-						echo "Upss dirty dude :v"
+						echo "Dirty Build"
 				fi
 
 				# Compile time
@@ -380,19 +348,8 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		# Define ARCH
 		export ARCH=arm64
 
-	if [ "$compiler" == "1" ]
-		then
-			# Define Clang path
-			export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
-	elif [ "$compiler" == "2" ]
-		then
-			# Define Clang path
-			export CLANG_PATH=${HOME}/hana/clang/bin
-			export PATH=${CLANG_PATH}:${PATH}
-			export CLANG_TRIPLE=aarch64-linux-gnu-
-			export CROSS_COMPILE=${HOME}/hana/gcc/bin/aarch64-linux-gnu-
-			export CROSS_COMPILE_ARM32=${HOME}/hana/gcc_arm32/bin/arm-linux-gnueabi-
-	fi
+		# Define Clang path
+		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
 
 		# Define Kernel Environment}
 		export KBUILD_BUILD_USER=Kasumi
@@ -452,7 +409,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+				sed -i -e 's/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		elif [ "$kernel_stat" == "2" ]
 			then
 				# Extend Environment
@@ -460,7 +417,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/-戸山-Kernel-r12-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+				sed -i -e 's/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 		fi
 
 		# Define Kernel Environment
@@ -479,7 +436,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
                 cd ${HOME}/hana
 
 		# Import git start commit
-		COMMIT="5ebac1edd704c0d35abdf2b2be1d871cdc0ebcac"
+		COMMIT="1ae8c35817ef3c7f07286aeb60cfe81281bdd379"
 
 		# Define Build Type
 		echo "Is this clean or dirty build ?"
