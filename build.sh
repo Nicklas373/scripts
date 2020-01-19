@@ -47,7 +47,9 @@ bot_template "<b>|| HANA-CI Build Bot ||</b>" \
 	      "<b>Build Status :</b><code> ${KERNEL_RELEASE} </code>" \
               "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
 	      "<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
+	      "" \
 	      "<b>Kernel Scheduler :</b><code> ${KERNEL_SCHED} </code>" \
+	      "<b>Kernel Branch :</b><code> ${KERNEL_BRANCH} </code>" \
               "<b>Latest commit :</b><code> $(git --no-pager log --pretty=format:'"%h - %s (%an)"' -1) </code>"
 }
 
@@ -61,7 +63,7 @@ bot_template "<b>|| HANA-CI Build Bot ||</b>" \
     "<b>Build Status :</b><code> ${KERNEL_RELEASE} </code>" \
     "<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
     "<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
-    "<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" " \
+    "<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" \
     "" \
     "<b>Kernel Scheduler :</b><code> ${KERNEL_SCHED} </code>" \
     "<b>Kernel Version:</b><code> Linux ${TELEGRAM_KERNEL_VER}</code>" \
@@ -107,16 +109,28 @@ echo "NOTE: Write codename only!"
 read codename
 echo ""
 
+echo "Which toolchains that you want to use ?"
+echo ""
+echo "1. Proton Clang 10.0.0"
+echo "2. Proton Clang 11.0.0"
+echo ""
+echo "NOTE: Write number only!"
+read clang
+echo ""
+
 if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ]
 	then
 		# Define ARCH
 		export ARCH=arm64
 
 		# Define Clang path
-		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+		export CLANG_PATH="${HOME}/hana/p-clang/bin"
+		export PATH=${CLANG_PATH}:${PATH}
+		export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
 
 		# Define Kernel Environment
 		export KBUILD_BUILD_USER=Kasumi
+		export KBUILD_BUILD_HOST=HANA-BUILD
 		IMAGE="${HOME}/hana/mido/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/mido"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
@@ -168,6 +182,19 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				KERNEL_TAG="P-Q"
 		fi
 
+		# Switch Clang Earlier
+		if [ "$clang" == "1" ]
+			then
+				cd ${HOME}/hana/p-clang
+				git checkout master
+				cd ${HOME}/hana
+		elif [ "$clang" == "2" ]
+			then
+				cd ${HOME}/hana/p-clang
+				git checkout proton-clang-11
+				cd ${HOME}/hana
+		fi
+
 		# Define Kernel Status
 		echo "Which build status for this kernel?"
 		echo ""
@@ -185,7 +212,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
 		elif [ "$kernel_stat" == "2" ]
 			then
 				# Extend Environment
@@ -193,7 +220,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
 
 				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r16-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
 		fi
 
 		# Begin Script
@@ -201,8 +228,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 			then
 				# Define Kernel Environment
 				KERNEL_SCHED="HMP"
-				KERNEL_REV="r9"
+				KERNEL_REV="r10"
 				KERNEL_NAME="CAF"
+				KERNEL_BRANCH="pie"
 
 				# Define Specific Telegram Filename
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
@@ -222,7 +250,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="a26d9fbee83d68d9d10d6995a7ad6cca4ab72638"
+				COMMIT="2687afb31e7aebf9a57a34081b248be498fbb3f7"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -249,8 +277,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 			then
 				# Define Kernel Environment
 				KERNEL_SCHED="EAS"
-				KERNEL_REV="r16"
+				KERNEL_REV="r17"
 				KERNEL_NAME="Clarity"
+				KERNEL_BRANCH="dev/kasumi"
 
 				# Define Specific Telegram Filename
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
@@ -271,7 +300,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
                                 cd ${HOME}/hana
 
 				# Import git start commit
-				COMMIT="5a3cc31e7bb17cb411ae477bf76407c0656cd6de"
+				COMMIT="0e38c646099d85644a56cf7abb1e37589156b543"
 
 				# Define Build Type
 				echo "Is this clean or dirty build ?"
@@ -298,8 +327,9 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 			then
 				# Define Kernel Environment
 				KERNEL_SCHED="EAS-UC"
-				KERNEL_REV="r15"
+				KERNEL_REV="r16"
 				KERNEL_NAME="Clarity"
+				KERNEL_BRANCH="dev/kasumi-uc"
 
 				# Define Specific Telegram Filename
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
@@ -349,12 +379,12 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		export ARCH=arm64
 
 		# Define Clang path
-		export LD_LIBRARY_PATH="${HOME}/clang-10/bin/../lib:$PATH"
+		export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
 
 		# Define Kernel Environment}
 		export KBUILD_BUILD_USER=Kasumi
-		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz"
-		DTB="${HOME}/hana/lavender/out/arch/arm64/boot/dts/qcom"
+		export KBUILD_BUILD_HOST=HANA-BUILD
+		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/lavender"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
 		CODENAME="lavender"
@@ -392,6 +422,19 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				KERNEL_TAG="P-Q"
 		fi
 
+		# Switch Clang Earlier
+                if [ "$clang" == "1" ]
+                        then
+                                cd ${HOME}/hana/p-clang
+                                git checkout master
+                                cd ${HOME}/hana
+                elif [ "$clang" == "2" ]
+                        then
+                                cd ${HOME}/hana/p-clang
+                                git checkout proton-clang-11
+                                cd ${HOME}/hana
+                fi
+
 		# Define Kernel Status
 		echo "Which build status for this kernel?"
 		echo ""
@@ -422,21 +465,22 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 
 		# Define Kernel Environment
 		KERNEL_SCHED="EAS"
-		KERNEL_REV="r12"
+		KERNEL_REV="r13"
 		KERNEL_NAME="Clarity"
+		KERNEL_BRANCH="kasumi"
 
 		# Define Specific Telegram Filename
 		TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
 
 		# Switch to Clarity Branch
 		cd ${HOME}/hana/lavender
-                git checkout dev/kasumi-eas
+                git checkout kasumi
 		cd ${HOME}/hana/AnyKernel3
                 git checkout lavender
                 cd ${HOME}/hana
 
 		# Import git start commit
-		COMMIT="1ae8c35817ef3c7f07286aeb60cfe81281bdd379"
+		COMMIT="a4ec84bd3623bb889f2533ec5aabd7925166c6de"
 
 		# Define Build Type
 		echo "Is this clean or dirty build ?"
@@ -473,7 +517,7 @@ function compile() {
 	cd ${HOME}/hana
 	START=$(date +"%s")
 	make -C ${KERNEL} ${CODENAME}_defconfig O=out
-	PATH="${HOME}/clang-10/bin/:${PATH}" \
+	PATH="${HOME}/hana/p-clang/bin/:${PATH}" \
 	make -C ${KERNEL} -j$(nproc --all) -> ${KERNEL}/compile.log O=out \
 							CC=clang \
 							CLANG_TRIPLE=aarch64-linux-gnu- \
@@ -497,18 +541,9 @@ function compile() {
 	bot_build_success
 	cd ..
 	# Cleanup dtb and kernel old image before push
-	rm AnyKernel3/Image.gz-dtb
-	rm AnyKernel3/dtbs/*.dtb
-	rm AnyKernel3/kernel/Image.gz
+	rm ${HOME}/hana/AnyKernel3/Image.gz-dtb
 	sendStick "${TELEGRAM_SUCCESS}"
-	if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ];
-		then
-			cp ${IMAGE} AnyKernel3/Image.gz-dtb
-	elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$codename" == "2" ];
-		then
-			cp ${IMAGE} AnyKernel3/kernel
-			cp ${DTB}/*.dtb AnyKernel3/dtbs
-	fi
+	cp ${IMAGE} ${HOME}/hana/AnyKernel3/Image.gz-dtb
 	anykernel
 	kernel_upload
 }
