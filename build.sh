@@ -111,8 +111,8 @@ echo ""
 
 echo "Which toolchains that you want to use ?"
 echo ""
-echo "1. Proton Clang 10.0.0"
-echo "2. Proton Clang 11.0.0"
+echo "1. Proton Clang"
+echo "2. LiuNian Clang"
 echo ""
 echo "NOTE: Write number only!"
 read clang
@@ -123,14 +123,58 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 		# Define ARCH
 		export ARCH=arm64
 
-		# Define Clang path
-		export CLANG_PATH="${HOME}/hana/p-clang/bin"
-		export PATH=${CLANG_PATH}:${PATH}
-		export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
+		echo "Which clang version that you want to use ?"
+		echo ""
+		echo "1. 10.0.0"
+		echo "2. 11.0.0"
+		echo ""
+		echo "NOTE: Write number only!"
+		read clang-ver
+		echo ""
+
+		# Declare clang version
+		if [ "$clang" == "1" ]
+			then
+				# Define Clang path
+				export CLANG_PATH="${HOME}/hana/p-clang/bin"
+				export PATH=${CLANG_PATH}:${PATH}
+				export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
+
+				# Switch clang branch
+				if [ "$clang-ver" == "1" ]
+					then
+						cd ${HOME}/hana/p-clang
+                                		git checkout master
+                                		cd ${HOME}/hana
+				elif [ "$clang_ver" == "2" ]
+					then
+						cd ${HOME}/hana/p-clang
+						git checkout proton-clang-11
+						cd ${HOME}/hana
+				fi
+		elif [ "$clang" == "2" ]
+			then
+				# Define Clang path
+				export CLANG_PATH="${HOME}/hana/l-clang/bin"
+				export PATH=${CLANG_PATH}:${PATH}
+				export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
+
+				# Switch clang branch
+                                if [ "$clang-ver" == "1" ]
+                                        then
+                                                cd ${HOME}/hana/l-clang
+						git checkout clang-10
+						cd ${HOME}/hana
+                                elif [ "$clang_ver" == "2" ]
+                                        then
+                                                cd ${HOME}/hana/l-clang
+						git checkout master
+						cd ${HOME}/hana
+		fi
 
 		# Define Kernel Environment
 		export KBUILD_BUILD_USER=Kasumi
-		export KBUILD_BUILD_HOST=HANA-BUILD
+		export KBUILD_BUILD_HOST=HANA-CI
 		IMAGE="${HOME}/hana/mido/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/mido"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
@@ -182,19 +226,6 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				KERNEL_TAG="P-Q"
 		fi
 
-		# Switch Clang Earlier
-		if [ "$clang" == "1" ]
-			then
-				cd ${HOME}/hana/p-clang
-				git checkout master
-				cd ${HOME}/hana
-		elif [ "$clang" == "2" ]
-			then
-				cd ${HOME}/hana/p-clang
-				git checkout proton-clang-11
-				cd ${HOME}/hana
-		fi
-
 		# Define Kernel Status
 		echo "Which build status for this kernel?"
 		echo ""
@@ -238,14 +269,20 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				# Switch to CAF Branch
                                 cd ${HOME}/hana/mido
                                 git checkout pie
+
+				# Upstream current revision
+				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 pie && git merge FETCH_HEAD
+
                                 cd ${HOME}/hana/AnyKernel3
 
 		# Use proper anykernel branch for android 10
 		if [ "$kernel_ver" == "1" ]
 			then
 				git checkout caf/mido
+				git fetch https://github.com/Nicklas373/AnyKernel3 caf/mido && git merge FETCH_HEAD
 		else
 				git checkout mido-10
+				git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
 		fi
 				cd ${HOME}/hana
 
@@ -287,15 +324,20 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				# Switch to Clarity Branch
                                 cd ${HOME}/hana/mido
 				cd ${KERNEL}
+
+				# Upstream current revision
 				git checkout dev/kasumi
+				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 dev/kasumi && git merge FETCH_HEAD
 				if [ "$kernel_ver" == 2 ]
 					then
 						cd ${HOME}/hana/AnyKernel3
 						git checkout mido-10
+						git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
 				elif [ "$kernel_ver" == 1 ]
 					then
 						cd ${HOME}/hana/AnyKernel3
 						git checkout mido
+						git fetch https://github.com/Nicklas373/AnyKernel3 mido && git merge FETCH_HEAD
 				fi
                                 cd ${HOME}/hana
 
@@ -337,14 +379,20 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				# Switch to Clarity-UC Branch
                                 cd ${HOME}/hana/mido
                                 git checkout dev/kasumi-uc
+
+				# Upstream current revision
+				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 dev/kasumi-uc && git merge FETCH_HEAD
+
 				if [ "$kernel_ver" == 1 ]
 					then
 						cd ${HOME}/hana/AnyKernel3
 						git checkout mido
+						git fetch https://github.com/Nicklas373/AnyKernel3 mido && git merge FETCH_HEAD
 				elif [ "$kernel_ver" == 2 ]
 					then
 						cd ${HOME}/hana/AnyKernel3
 						git checkout mido-10
+						git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
 				fi
                                 cd ${HOME}/hana
 
@@ -378,12 +426,58 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		# Define ARCH
 		export ARCH=arm64
 
-		# Define Clang path
-		export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
+				echo "Which clang version that you want to use ?"
+                echo ""
+                echo "1. 10.0.0"
+                echo "2. 11.0.0"
+                echo ""
+                echo "NOTE: Write number only!"
+                read clang-ver
+                echo ""
+
+                # Declare clang version
+                if [ "$clang" == "1" ]
+			then
+                                # Define Clang path
+                                export CLANG_PATH="${HOME}/hana/p-clang/bin"
+                                export PATH=${CLANG_PATH}:${PATH}
+                                export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
+
+                                # Switch clang branch
+                                if [ "$clang-ver" == "1" ]
+                                        then
+                                                cd ${HOME}/hana/p-clang
+                                                git checkout master
+                                                cd ${HOME}/hana
+                                elif [ "$clang_ver" == "2" ]
+                                        then
+                                                cd ${HOME}/hana/p-clang
+                                                git checkout proton-clang-11
+                                                cd ${HOME}/hana
+                                fi
+                elif [ "$clang" == "2" ]
+                        then
+                                # Define Clang path
+                                export CLANG_PATH="${HOME}/hana/l-clang/bin"
+                                export PATH=${CLANG_PATH}:${PATH}
+                                export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
+
+                                # Switch clang branch
+                                if [ "$clang-ver" == "1" ]
+                                        then
+                                                cd ${HOME}/hana/l-clang
+                                                git checkout clang-10
+                                                cd ${HOME}/hana
+                                elif [ "$clang_ver" == "2" ]
+                                        then
+                                                cd ${HOME}/hana/l-clang
+                                                git checkout master
+                                                cd ${HOME}/hana
+                fi
 
 		# Define Kernel Environment}
 		export KBUILD_BUILD_USER=Kasumi
-		export KBUILD_BUILD_HOST=HANA-BUILD
+		export KBUILD_BUILD_HOST=HANA-CI
 		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/lavender"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
@@ -404,7 +498,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		echo "3. 9 - 10"
 		echo ""
 		echo "NOTE: Write number only!"
-		read -s kernel_ver
+		read kernel_ver
 		if [ "$kernel_ver" == "1" ]
 			then
 				# Extend Environment
@@ -421,19 +515,6 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 				KERNEL_ANDROID_VER="9-10"
 				KERNEL_TAG="P-Q"
 		fi
-
-		# Switch Clang Earlier
-                if [ "$clang" == "1" ]
-                        then
-                                cd ${HOME}/hana/p-clang
-                                git checkout master
-                                cd ${HOME}/hana
-                elif [ "$clang" == "2" ]
-                        then
-                                cd ${HOME}/hana/p-clang
-                                git checkout proton-clang-11
-                                cd ${HOME}/hana
-                fi
 
 		# Define Kernel Status
 		echo "Which build status for this kernel?"
@@ -475,8 +556,16 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		# Switch to Clarity Branch
 		cd ${HOME}/hana/lavender
                 git checkout kasumi
+
+		# Upstream current revision
+		git fetch https://Nicklas373:$token@github.com/Nicklas373/kernel_xiaomi_lavender-4.4 kasumi && git merge FETCH_HEAD
+
 		cd ${HOME}/hana/AnyKernel3
                 git checkout lavender
+
+		# Another upstream revision
+		git fetch https://github.com/Nicklas373/AnyKernel3 lavender && git merge FETCH_HEAD
+
                 cd ${HOME}/hana
 
 		# Import git start commit
@@ -530,12 +619,29 @@ function compile() {
 			DIFF=$(($END - $START))
 			cd ${KERNEL}
 			bot_build_failed
+			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL}/compile.log"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			cd ..
 			sendStick "${TELEGRAM_FAIL}"
 			exit 1
 	fi
 	END=$(date +"%s")
 	DIFF=$(($END - $START))
+
+	# Switch to original kernel name
+	# I don't want to have any conflict in the future if changed kernel name
+	# doesn't get commited, so switch it back before this bash done.
+	cd ${KERNEL}
+	if  [ "$codename" == "1" ]
+		then
+			# Define Kernel Name
+			sed -i -e 's/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+	elif [ "$codename" == "2" ]
+		then
+			# Define Kernel Name
+			sed -i -e 's/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+	fi
+	cd ..
+
 	cp ${KERNEL}/compile.log ${KERNEL_TEMP}
 	cd ${KERNEL}
 	bot_build_success
