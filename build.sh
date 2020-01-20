@@ -133,8 +133,8 @@ elif [ "$kernel_stat" == "2" ]
 fi
 }
 
-# Main Program
-main(){
+# User init
+init() {
 # User option begin
 echo "Which device that you want to compile ?"
 echo ""
@@ -187,11 +187,6 @@ echo ""
 				
 # Define ARCH
 export ARCH=arm64
-
-# Define Clang path
-export CLANG_PATH="${CLANG_DIR}"
-export PATH=${CLANG_PATH}:${PATH}
-export LD_LIBRARY_PATH="${CLANG_DIR}/../lib:$PATH"
 
 # Define Global Kernel Environment
 export KBUILD_BUILD_USER=Kasumi
@@ -252,9 +247,15 @@ elif [ "$clang" == "2" ]
 				git checkout master
 		fi
 fi
-		
-cd ${HOME}/hana
-		
+
+# Define Clang path
+export CLANG_PATH="${CLANG_DIR}"
+export PATH=${CLANG_PATH}:${PATH}
+export LD_LIBRARY_PATH="${CLANG_DIR}/../lib:$PATH"
+}
+
+# Main Program
+main(){	
 if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ]
 	then
 
@@ -536,4 +537,5 @@ function kernel_upload(){
 }
 
 # Main Program
+init
 main
