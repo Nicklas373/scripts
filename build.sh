@@ -2,7 +2,7 @@
 #
 # Copyright 2019, Najahiiii <najahiii@outlook.co.id>
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
-# Copyright 2019, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
+# Copyright 2020, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
 # Copyright 2016-2020, HANA-CI Build Project
 #
 # Clarity Kernel Builder Script || Main Script
@@ -98,8 +98,44 @@ function sendStick() {
 	curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_ID/sendSticker -d sticker="${1}" -d chat_id=$TELEGRAM_GROUP_ID &>/dev/null
 }
 
+# Rename Kernel Name
+function k_name() {
+if [ "$kernel_stat" == "1" ]
+	then
+		# Extend Environment
+		KERNEL_RELEASE="Stable"
+		TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
+
+		if [ "$codename" == "1" ]
+			then
+				# Define Kernel Name
+				sed -i -e 's/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+		elif [ "$codename" == "2" ]
+			then
+				# Define Kernel Name
+				sed -i -e 's/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		fi
+elif [ "$kernel_stat" == "2" ]
+	then
+		# Extend Environment
+		KERNEL_RELEASE="BETA"
+		TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
+
+		if [ "$codename" == "1" ]
+			then
+				# Define Kernel Name
+				sed -i -e 's/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
+		elif [ "$codename" == "2" ]
+			then
+				# Define Kernel Name
+				sed -i -e 's/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		fi
+fi
+}
+
 # Main Program
 main(){
+# User option begin
 echo "Which device that you want to compile ?"
 echo ""
 echo "1. Xiaomi Redmi Note 4x (Mido)"
@@ -109,6 +145,7 @@ echo "NOTE: Write codename only!"
 read codename
 echo ""
 
+# Set toolchains
 echo "Which toolchains that you want to use ?"
 echo ""
 echo "1. Proton Clang"
@@ -118,142 +155,115 @@ echo "NOTE: Write number only!"
 read clang
 echo ""
 
+# Set toolchains version
+echo "Which clang version that you want to use ?"
+echo ""
+echo "1. 10.0.0"
+echo "2. 11.0.0"
+echo ""
+echo "NOTE: Write number only!"
+read cver
+echo ""
+
+# Define Kernel Status
+echo "Which build status for this kernel?"
+echo ""
+echo "1. Stable"
+echo "2. BETA"
+echo ""
+echo "NOTE: Write number only!"
+read kernel_stat
+echo ""		
+
+# Define Build Type
+echo "Is this clean or dirty build ?"
+echo ""
+echo "1. Clean"
+echo "2. Dirty"
+echo ""
+echo "NOTE: Write number only!"
+read build_type
+echo ""
+				
+# Define ARCH
+export ARCH=arm64
+
+# Define Clang path
+export CLANG_PATH="${CLANG_DIR}"
+export PATH=${CLANG_PATH}:${PATH}
+export LD_LIBRARY_PATH="${CLANG_DIR}/../lib:$PATH"
+
+# Define Global Kernel Environment
+export KBUILD_BUILD_USER=Kasumi
+export KBUILD_BUILD_HOST=HANA-CI
+KERNEL_TEMP="${HOME}/hana/TEMP"
+KERNEL_SUFFIX="Kernel"
+KERNEL_DATE="$(date +%Y%m%d-%H%M)"
+TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
+export TELEGRAM_SUCCESS="CAADBQADhQcAAhIzkhBQ0UsCTcSAWxYE"
+export TELEGRAM_FAIL="CAADBQADfgcAAhIzkhBSDI8P9doS7BYE"
+
+# Declare Kernel Android Version
+if [ "$kernel_ver" == "1" ]
+	then
+		# Extend Environment
+		KERNEL_ANDROID_VER="9"
+		KERNEL_TAG="P"
+elif [ "$kernel_ver" == "2" ]
+	then
+		# Extend Environment
+		KERNEL_ANDROID_VER="10"
+		KERNEL_TAG="Q"
+elif [ "$kernel_ver" == "3" ]
+	then
+		# Extend Environment
+		KERNEL_ANDROID_VER="9-10"
+		KERNEL_TAG="P-Q"
+fi
+
+# Declare clang version
+if [ "$clang" == "1" ]
+	then
+		# Declare clang folder
+		CLANG_DIR="${HOME}/hana/p-clang/bin"
+
+		# Switch clang branch
+		cd ${HOME}/hana/p-clang
+		if [ "$cver" == "1" ]
+			then
+				git checkout master
+		elif [ "$cver" == "2" ]
+			then
+				git checkout proton-clang-11
+				
+		fi
+elif [ "$clang" == "2" ]
+	then
+		# Declare clang folder
+		CLANG_DIR="${HOME}/hana/l-clang/bin"
+
+		# Switch clang branch
+		cd ${HOME}/hana/l-clang
+		if [ "$cver" == "1" ]
+			then
+				git checkout clang-10
+		elif [ "$cver" == "2" ]
+			then
+				git checkout master
+		fi
+fi
+		
+cd ${HOME}/hana
+		
 if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1" ]
 	then
-		# Define ARCH
-		export ARCH=arm64
 
-		echo "Which clang version that you want to use ?"
-		echo ""
-		echo "1. 10.0.0"
-		echo "2. 11.0.0"
-		echo ""
-		echo "NOTE: Write number only!"
-		read cver
-		echo ""
-
-		# Declare clang version
-		if [ "$clang" == "1" ]
-			then
-				# Define Clang path
-				export CLANG_PATH="${HOME}/hana/p-clang/bin"
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
-
-				# Switch clang branch
-				if [ "$cver" == "1" ]
-					then
-						cd ${HOME}/hana/p-clang
-                                		git checkout master
-                                		cd ${HOME}/hana
-				elif [ "$cver" == "2" ]
-					then
-						cd ${HOME}/hana/p-clang
-						git checkout proton-clang-11
-						cd ${HOME}/hana
-				fi
-		elif [ "$clang" == "2" ]
-			then
-				# Define Clang path
-				export CLANG_PATH="${HOME}/hana/l-clang/bin"
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
-
-				# Switch clang branch
-                                if [ "$cver" == "1" ]
-                                        then
-                                                cd ${HOME}/hana/l-clang
-						git checkout clang-10
-						cd ${HOME}/hana
-                                elif [ "$cver" == "2" ]
-                                        then
-                                                cd ${HOME}/hana/l-clang
-						git checkout master
-						cd ${HOME}/hana
-				fi
-		fi
-
-		# Define Kernel Environment
-		export KBUILD_BUILD_USER=Kasumi
-		export KBUILD_BUILD_HOST=HANA-CI
+		# Define Specific Kernel Environment
 		IMAGE="${HOME}/hana/mido/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/mido"
-		KERNEL_TEMP="${HOME}/hana/TEMP"
 		CODENAME="mido"
 		KERNEL_CODE="Mido"
-		KERNEL_SUFFIX="Kernel"
-		KERNEL_DATE="$(date +%Y%m%d-%H%M)"
-		TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
-		export TELEGRAM_SUCCESS="CAADBQADhQcAAhIzkhBQ0UsCTcSAWxYE"
-		export TELEGRAM_FAIL="CAADBQADfgcAAhIzkhBSDI8P9doS7BYE"
 		TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
-
-		# Define Kernel Name
-		echo "Which kernel that you want to compile ?"
-		echo ""
-		echo "1. CAF Kernel (HMP)"
-		echo "2. Clarity Kernel (EAS)"
-		echo "3. Clarity Kernel (EAS UC)"
-		echo ""
-		echo "NOTE: Write number only!"
-		read kernel_name
-		echo ""
-
-		# Define Android Version
-		echo "Which android version for this kernel ?"
-		echo ""
-		echo "1. 9"
-		echo "2. 10"
-		echo "3. 9 - 10"
-		echo ""
-		echo "NOTE: Write number only!"
-		read kernel_ver
-		echo ""
-
-		if [ "$kernel_ver" == "1" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="9"
-				KERNEL_TAG="P"
-		elif [ "$kernel_ver" == "2" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="10"
-				KERNEL_TAG="Q"
-		elif [ "$kernel_ver" == "3" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="9-10"
-				KERNEL_TAG="P-Q"
-		fi
-
-		# Define Kernel Status
-		echo "Which build status for this kernel?"
-		echo ""
-		echo "1. Stable"
-		echo "2. BETA"
-		echo ""
-		echo "NOTE: Write number only!"
-		read kernel_stat
-		echo ""
-
-		if [ "$kernel_stat" == "1" ]
-			then
-				# Extend Environment
-				KERNEL_RELEASE="Stable"
-				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
-
-				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
-		elif [ "$kernel_stat" == "2" ]
-			then
-				# Extend Environment
-				KERNEL_RELEASE="BETA"
-				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
-
-				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/-戸山-Kernel-r17-LA.UM.8.6.r1-02900-89xx.0/g'  ${KERNEL}/arch/arm64/configs/mido_defconfig
-		fi
 
 		# Begin Script
 		if [ "$kernel_name" == "1" ]
@@ -268,92 +278,72 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
 
 				# Switch to CAF Branch
-                                cd ${HOME}/hana/mido
-                                git checkout pie
+				cd ${HOME}/hana/mido
+				git checkout pie
 
 				# Upstream current revision
 				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 pie && git merge FETCH_HEAD
+				cd ${HOME}/hana/AnyKernel3
 
-                                cd ${HOME}/hana/AnyKernel3
+			# Use proper anykernel branch for android 10
+			if [ "$kernel_ver" == "1" ]
+				then
+					git checkout caf/mido
+					git fetch https://github.com/Nicklas373/AnyKernel3 caf/mido && git merge FETCH_HEAD
+			else
+					git checkout mido-10
+					git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
+			fi
+				
+			cd ${HOME}/hana
 
-		# Use proper anykernel branch for android 10
-		if [ "$kernel_ver" == "1" ]
-			then
-				git checkout caf/mido
-				git fetch https://github.com/Nicklas373/AnyKernel3 caf/mido && git merge FETCH_HEAD
-		else
-				git checkout mido-10
-				git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
-		fi
-				cd ${HOME}/hana
+			# Import git start commit
+			COMMIT="2687afb31e7aebf9a57a34081b248be498fbb3f7"
 
-				# Import git start commit
-				COMMIT="2687afb31e7aebf9a57a34081b248be498fbb3f7"
+			if [ "$build_type" == "1" ]
+				then
+					cd ${KERNEL}/out
+					make clean && make mrproper
+					cd ${HOME}/hana
+			elif [ "$build_type" == "2" ]
+				then
+					echo "Dirty build :3"
+			fi
 
-				# Define Build Type
-				echo "Is this clean or dirty build ?"
-				echo ""
-				echo "1. Clean"
-				echo "2. Dirty"
-				echo ""
-				echo "NOTE: Write number only!"
-				read build_type
-				echo ""
-				if [ "$build_type" == "1" ]
-					then
-						cd ${KERNEL}/out
-						make clean && make mrproper
-						cd ${HOME}/hana
-				elif [ "$build_type" == "2" ]
-					then
-						echo "Dirty build :3"
-				fi
-
-				# Compile time
-				compile
+			# Compile time
+			compile
 		elif [ "$kernel_name" == "2" ]
 			then
 				# Define Kernel Environment
 				KERNEL_SCHED="EAS"
 				KERNEL_REV="r17"
 				KERNEL_NAME="Clarity"
-				KERNEL_BRANCH="dev/kasumi"
+				KERNEL_BRANCH="dev/kasumi-pre"
 
 				# Define Specific Telegram Filename
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
 
 				# Switch to Clarity Branch
-                                cd ${HOME}/hana/mido
 				cd ${KERNEL}
 
 				# Upstream current revision
-				git checkout dev/kasumi
-				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 dev/kasumi && git merge FETCH_HEAD
-				if [ "$kernel_ver" == 2 ]
+				git checkout dev/kasumi-pre
+				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 dev/kasumi-pre && git merge FETCH_HEAD
+				cd ${HOME}/hana/AnyKernel3
+				if [ "$kernel_ver" == 1 ]
 					then
-						cd ${HOME}/hana/AnyKernel3
-						git checkout mido-10
-						git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
-				elif [ "$kernel_ver" == 1 ]
-					then
-						cd ${HOME}/hana/AnyKernel3
 						git checkout mido
+						git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
+				elif [ "$kernel_ver" == 2 ]
+					then
+						git checkout mido-10
 						git fetch https://github.com/Nicklas373/AnyKernel3 mido && git merge FETCH_HEAD
 				fi
-                                cd ${HOME}/hana
+                cd ${HOME}/hana
 
 				# Import git start commit
 				COMMIT="0e38c646099d85644a56cf7abb1e37589156b543"
 
-				# Define Build Type
-				echo "Is this clean or dirty build ?"
-				echo ""
-				echo "1. Clean"
-				echo "2. Dirty"
-				echo ""
-				echo "NOTE: Write number only!"
-				read build_type
-				echo ""
 				if [ "$build_type" == "1" ]
 					then
 						cd ${KERNEL}/out
@@ -365,6 +355,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				fi
 
 				# Compile time
+				k_name
 				compile
 		elif [ "$kernel_name" == "3" ]
 			then
@@ -378,37 +369,28 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				TELEGRAM_FILENAME="${KERNEL_NAME}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"
 
 				# Switch to Clarity-UC Branch
-                                cd ${HOME}/hana/mido
-                                git checkout dev/kasumi-uc
+				cd ${HOME}/hana/mido
+				git checkout dev/kasumi-uc
 
 				# Upstream current revision
 				git fetch https://github.com/Nicklas373/kernel_xiaomi_msm8953-3.18-2 dev/kasumi-uc && git merge FETCH_HEAD
 
+				cd ${HOME}/hana/AnyKernel3
 				if [ "$kernel_ver" == 1 ]
 					then
-						cd ${HOME}/hana/AnyKernel3
 						git checkout mido
 						git fetch https://github.com/Nicklas373/AnyKernel3 mido && git merge FETCH_HEAD
 				elif [ "$kernel_ver" == 2 ]
 					then
-						cd ${HOME}/hana/AnyKernel3
 						git checkout mido-10
 						git fetch https://github.com/Nicklas373/AnyKernel3 mido-10 && git merge FETCH_HEAD
 				fi
-                                cd ${HOME}/hana
+		
+				cd ${HOME}/hana
 
 				# Import git start commit
 				COMMIT="faf1e5b5d6c0905b360950e6990c6be581f65c2d"
 
-				# Define Build Type
-				echo "Is this clean or dirty build ?"
-				echo ""
-				echo "1. Clean"
-				echo "2. Dirty"
-				echo ""
-				echo "NOTE: Write number only!"
-				read build_type
-				echo ""
 				if [ "$build_type" == "1" ]
 					then
 						cd ${KERNEL}/out
@@ -420,131 +402,18 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				fi
 
 				# Compile time
+				k_name
 				compile
 		fi
 elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$codename" == "2" ]
 	then
-		# Define ARCH
-		export ARCH=arm64
-
-				echo "Which clang version that you want to use ?"
-                echo ""
-                echo "1. 10.0.0"
-                echo "2. 11.0.0"
-                echo ""
-                echo "NOTE: Write number only!"
-                read cver
-                echo ""
-
-                # Declare clang version
-                if [ "$clang" == "1" ]
-			then
-                                # Define Clang path
-                                export CLANG_PATH="${HOME}/hana/p-clang/bin"
-                                export PATH=${CLANG_PATH}:${PATH}
-                                export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
-
-                                # Switch clang branch
-                                if [ "$cver" == "1" ]
-                                        then
-                                                cd ${HOME}/hana/p-clang
-                                                git checkout master
-                                                cd ${HOME}/hana
-                                elif [ "$cver" == "2" ]
-                                        then
-                                                cd ${HOME}/hana/p-clang
-                                                git checkout proton-clang-11
-                                                cd ${HOME}/hana
-                                fi
-                elif [ "$clang" == "2" ]
-                        then
-                                # Define Clang path
-                                export CLANG_PATH="${HOME}/hana/l-clang/bin"
-                                export PATH=${CLANG_PATH}:${PATH}
-                                export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
-
-                                # Switch clang branch
-                                if [ "$cver" == "1" ]
-                                        then
-                                                cd ${HOME}/hana/l-clang
-                                                git checkout clang-10
-                                                cd ${HOME}/hana
-                                elif [ "$cver" == "2" ]
-                                        then
-                                                cd ${HOME}/hana/l-clang
-                                                git checkout master
-                                                cd ${HOME}/hana
-				fi
-                fi
-
-		# Define Kernel Environment}
-		export KBUILD_BUILD_USER=Kasumi
-		export KBUILD_BUILD_HOST=HANA-CI
+		# Define specific kernel environment
 		IMAGE="${HOME}/hana/lavender/out/arch/arm64/boot/Image.gz-dtb"
 		KERNEL="${HOME}/hana/lavender"
 		KERNEL_TEMP="${HOME}/hana/TEMP"
 		CODENAME="lavender"
 		KERNEL_CODE="Lavender"
-		KERNEL_SUFFIX="Kernel"
-		KERNEL_DATE="$(date +%Y%m%d-%H%M)"
-		TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
-		export TELEGRAM_SUCCESS="CAADBQADhQcAAhIzkhBQ0UsCTcSAWxYE"
-		export TELEGRAM_FAIL="CAADBQADfgcAAhIzkhBSDI8P9doS7BYE"
 		TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
-
-		# Define Android Version
-		echo "Which android version for this kernel ?"
-		echo ""
-		echo "1. 9"
-		echo "2. 10"
-		echo "3. 9 - 10"
-		echo ""
-		echo "NOTE: Write number only!"
-		read kernel_ver
-		if [ "$kernel_ver" == "1" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="9"
-				KERNEL_TAG="P"
-		elif [ "$kernel_ver" == "2" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="10"
-				KERNEL_TAG="Q"
-		elif [ "$kernel_ver" == "3" ]
-			then
-				# Extend Environment
-				KERNEL_ANDROID_VER="9-10"
-				KERNEL_TAG="P-Q"
-		fi
-
-		# Define Kernel Status
-		echo "Which build status for this kernel?"
-		echo ""
-		echo "1. Stable"
-		echo "2. BETA"
-		echo ""
-		echo "NOTE: Write number only!"
-		read kernel_stat
-		echo ""
-
-		if [ "$kernel_stat" == "1" ]
-			then
-				# Extend Environment
-				KERNEL_RELEASE="Stable"
-				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_OFFICIAL_ID}
-
-				# Define Kernel Name
-				sed -i -e 's/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
-		elif [ "$kernel_stat" == "2" ]
-			then
-				# Extend Environment
-				KERNEL_RELEASE="BETA"
-				TELEGRAM_GROUP_ID=${TELEGRAM_GROUP_BETA_ID}
-
-				# Define Kernel Name
-				sed -i -e 's/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
-		fi
 
 		# Define Kernel Environment
 		KERNEL_SCHED="EAS"
@@ -557,31 +426,21 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 
 		# Switch to Clarity Branch
 		cd ${HOME}/hana/lavender
-                git checkout kasumi
+		git checkout kasumi
 
 		# Upstream current revision
 		git fetch https://Nicklas373:$token@github.com/Nicklas373/kernel_xiaomi_lavender-4.4 kasumi && git merge FETCH_HEAD
 
 		cd ${HOME}/hana/AnyKernel3
-                git checkout lavender
+		git checkout lavender
 
 		# Another upstream revision
 		git fetch https://github.com/Nicklas373/AnyKernel3 lavender && git merge FETCH_HEAD
-
-                cd ${HOME}/hana
+		cd ${HOME}/hana
 
 		# Import git start commit
 		COMMIT="a4ec84bd3623bb889f2533ec5aabd7925166c6de"
 
-		# Define Build Type
-		echo "Is this clean or dirty build ?"
-		echo ""
-		echo "1. Clean"
-		echo "2. Dirty"
-		echo ""
-		echo "NOTE: Write number only!"
-		read build_type
-		echo ""
 		if [ "$build_type" == "1" ]
 			then
 				cd ${KERNEL}/out
@@ -593,6 +452,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
 		fi
 
 		# Compile time
+		k_name
 		compile
 fi
 }
@@ -642,6 +502,7 @@ function compile() {
 			# Define Kernel Name
 			sed -i -e 's/-戸山-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/-友希那-Kernel-r13-LA.UM.8.2.r1-05100-sdm660.0/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 	fi
+
 	cd ..
 
 	cp ${KERNEL}/compile.log ${KERNEL_TEMP}
