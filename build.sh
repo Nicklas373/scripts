@@ -129,7 +129,7 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 		echo "2. 11.0.0"
 		echo ""
 		echo "NOTE: Write number only!"
-		read clang-ver
+		read cver
 		echo ""
 
 		# Declare clang version
@@ -141,12 +141,12 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
 
 				# Switch clang branch
-				if [ "$clang-ver" == "1" ]
+				if [ "$cver" == "1" ]
 					then
 						cd ${HOME}/hana/p-clang
                                 		git checkout master
                                 		cd ${HOME}/hana
-				elif [ "$clang_ver" == "2" ]
+				elif [ "$cver" == "2" ]
 					then
 						cd ${HOME}/hana/p-clang
 						git checkout proton-clang-11
@@ -160,16 +160,17 @@ if [ "$codename" == "Mido" ] || [ "$codename" == "mido" ] || [ "$codename" == "1
 				export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
 
 				# Switch clang branch
-                                if [ "$clang-ver" == "1" ]
+                                if [ "$cver" == "1" ]
                                         then
                                                 cd ${HOME}/hana/l-clang
 						git checkout clang-10
 						cd ${HOME}/hana
-                                elif [ "$clang_ver" == "2" ]
+                                elif [ "$cver" == "2" ]
                                         then
                                                 cd ${HOME}/hana/l-clang
 						git checkout master
 						cd ${HOME}/hana
+				fi
 		fi
 
 		# Define Kernel Environment
@@ -432,7 +433,7 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
                 echo "2. 11.0.0"
                 echo ""
                 echo "NOTE: Write number only!"
-                read clang-ver
+                read cver
                 echo ""
 
                 # Declare clang version
@@ -444,12 +445,12 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
                                 export LD_LIBRARY_PATH="${HOME}/hana/p-clang/bin/../lib:$PATH"
 
                                 # Switch clang branch
-                                if [ "$clang-ver" == "1" ]
+                                if [ "$cver" == "1" ]
                                         then
                                                 cd ${HOME}/hana/p-clang
                                                 git checkout master
                                                 cd ${HOME}/hana
-                                elif [ "$clang_ver" == "2" ]
+                                elif [ "$cver" == "2" ]
                                         then
                                                 cd ${HOME}/hana/p-clang
                                                 git checkout proton-clang-11
@@ -463,16 +464,17 @@ elif [ "$codename" == "Lavender" ] || [ "$codename" == "lavender" ] || [ "$coden
                                 export LD_LIBRARY_PATH="${HOME}/hana/l-clang/bin/../lib:$PATH"
 
                                 # Switch clang branch
-                                if [ "$clang-ver" == "1" ]
+                                if [ "$cver" == "1" ]
                                         then
                                                 cd ${HOME}/hana/l-clang
                                                 git checkout clang-10
                                                 cd ${HOME}/hana
-                                elif [ "$clang_ver" == "2" ]
+                                elif [ "$cver" == "2" ]
                                         then
                                                 cd ${HOME}/hana/l-clang
                                                 git checkout master
                                                 cd ${HOME}/hana
+				fi
                 fi
 
 		# Define Kernel Environment}
