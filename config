@@ -1,0 +1,188 @@
+#!/bin/bash
+#
+# HANA-CI Configuration Build Script || For Local Environment
+#
+# Copyright 2019, alanndz <alanmahmud0@gmail.com>
+# Copyright 2020, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
+# Copyright 2016-2020, HANA-CI Build Project
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+function main() {
+echo ""
+echo "Which devices that you want to compile ?"
+echo ""
+echo "1. Xiaomi Redmi Note 4x"
+echo "2. Xiaomi Redmi Note 7"
+echo ""
+echo "NOTE: Write number only!"
+read -s kdev
+
+if [ "$kdev" == "1" ];
+	then
+		devices="Xiaomi Redmi Note 4x"
+elif [ "$kdev" == "2" ];
+	then
+		devices="Xiaomi Redmi Note 7"
+fi
+
+echo ""
+echo "Which kernel that you want to compile ?"
+echo ""
+echo "1. CAF Kernel"
+echo "2. Kizuna Kernel"
+echo "3. Fusion Kernel"
+echo ""
+echo "NOTE: Write number only!"
+read -s kname
+
+if [ "$kname" == "1" ];
+	then
+		name="CAF Kernel"
+elif [ "$kname" == "2" ];
+	then
+		name="Kizuna Kernel"
+elif [ "$kname" == "3" ];
+	then
+		name="Fusion Kernel"
+fi
+
+echo ""
+echo "Which release type that you want to compile ?"
+echo ""
+echo "1. Stable"
+echo "2. BETA"
+echo ""
+echo "NOTE: Write number only!"
+read -s krelease
+
+if [ "$krelease" == "1" ];
+	then
+		release="Stable"
+elif [ "$krelease" == "2" ];
+	then
+		release="BETA"
+fi
+
+if [ "$kname" == "3" ];
+	then
+		echo ""
+		echo "Which android version that you want to compile ?"
+		echo ""
+		echo "1. Pie"
+		echo "2. Ten"
+		echo "3. Pie - Ten"
+		echo ""
+		echo "NOTE: Write number only!"
+		read -s kversion
+
+		if [ "$kversion" == "1" ];
+			then
+				version="9.0"
+		elif [ "$kversion" == "2" ];
+			then
+				version="10.0"
+		elif [ "$kversion" == "3" ];
+			then
+				version="9.0 - 10.0"
+		fi
+else
+	echo "Mido Kernel only for Android 10"
+	version="10.0"
+fi
+
+# Show user option
+echo ""
+echo "========================================="
+echo "| Your selection			|"
+echo "|					|"
+echo "| Devices	: $devices		|"
+echo "| Kernel	: $name			|"
+echo "| Release	: $release		|"
+echo "| Android Ver	: $version	|"
+echo "|					|"
+echo "| is this right option ?		|"
+echo "|					|"
+echo "| 1. Yes				|"
+echo "| 2. No				|"
+echo "|					|"
+echo "| NOTE: Write number only!	|"
+echo "========================================="
+read -s user
+
+# Configuring CI
+if [ "$user" == "2" ];
+	then
+		echo "See ya"
+		exit 1
+elif [ "$user" == "1" ];
+	then
+		echo "Configuring Main Script"
+		if [ "$kname" == "1" ];
+			then
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+		elif [ "$kname" == "2" ];
+			then
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+		elif [ "$kname" == "3" ];
+			then
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+		fi
+		if [ "$kdev" == "1" ];
+			then
+				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ~/scripts/build
+		elif [ "$kdev" == "2" ];
+			then
+				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/scripts/build
+
+				echo ""
+				echo "Want to use custom cam ?"
+				echo "1. yes"
+				echo "2. no"
+				echo "NOTE: Choose number only! "
+				read -s cam
+				if [ "$cam" == "1" ];
+					then
+						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ~/scripts/build
+				elif [ "$cam" == "2" ];
+					then
+						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ~/scripts/build
+				fi
+		fi
+		if [ "$kversion" == "1" ];
+			then
+				sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_AND_VER=1/KERNEL_AND_VER=0/g'  ~/scripts/build
+		elif [ "$kversion" == "2" ];
+			then
+				sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=1/g'  ~/scripts/build
+		elif [ "$kversion" == "3" ];
+			then
+				sed -i -e 's/KERNEL_AND_VER=1/KERNEL_AND_VER=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=2/g'  ~/scripts/build
+		fi
+		if [ "$krelease" == "1" ];
+			then
+				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ~/scripts/build
+		elif [ "$krelease" == "2" ];
+			then
+				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ~/scripts/build
+		fi
+		if [ "$comp" == "1" ];
+			then
+				sed -i -e 's/KERNEL_COMPILER=0/KERNEL_COMPILER=1/g'  ~/scripts/build
+		elif [ "$comp" == "2" ];
+			then
+				sed -i -e 's/KERNEL_COMPILER=1/KERNEL_COMPILER=0/g'  ~/scripts/build
+		fi
+fi
+}
+
+# run main
+main

@@ -1,6 +1,6 @@
 # My Personal Compiler & Environment Scripts
 
-This is only some repository that provide my compiler script for android and other my environment script.
+This is only some repository that provide my kernel compiler script for android.
 I'll update it when i need it, you can use my script if you want it (if this scripts suit for your needs).
 Just adjust ALIAS to yourself environment directories in script folder. And you're safe to use.
 
