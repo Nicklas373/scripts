@@ -3,11 +3,12 @@
 # HANA-CI Configuration Build Script || For Local Environment
 #
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
-# Copyright 2020, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
-# Copyright 2016-2020, HANA-CI Build Project
+# Copyright 2021, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
+# Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-function main() {
+# Begin decision
+function init() {
 echo ""
 echo "Which devices that you want to compile ?"
 echo ""
@@ -25,27 +26,147 @@ elif [ "$kdev" == "2" ];
 		devices="Xiaomi Redmi Note 7"
 fi
 
-echo ""
-echo "Which kernel that you want to compile ?"
-echo ""
-echo "1. CAF Kernel"
-echo "2. Kizuna Kernel"
-echo "3. Fusion Kernel"
-echo ""
-echo "NOTE: Write number only!"
-read -s kname
+# Run next step
+kname
+}
 
-if [ "$kname" == "1" ];
+function kname() {
+if [ "$kdev" == "1" ];
 	then
-		name="CAF Kernel"
-elif [ "$kname" == "2" ];
+		echo ""
+		echo "Which kernel that you want to compile ?"
+		echo ""
+		echo "1. CAF Kernel"
+		echo "2. Kizuna Kernel"
+		echo ""
+		echo "NOTE: Write number only!"
+		read -s kname
+
+		if [ "$kname" == "1" ];
+			then
+				name="CAF Kernel"
+				overclock="0"
+				clock="false"
+				undervolt="0"
+				s_uv="false"
+				g_clock="0"
+				gpu_clock="false"
+		elif [ "$kname" == "2" ];
+			then
+				name="Kizuna Kernel"
+				echo ""
+				echo "Overclock Version ?"
+				echo "1. Yes"
+				echo "2. No"
+				echo ""
+				echo "NOTE: Write number only!"
+				read -s oc
+
+				if [ "$oc" == "1" ];
+					then
+						overclock="1"
+						clock="true"
+						g_clock="1"
+						gpu_clock="true"
+
+						echo ""
+						echo "Undervolt Version ?"
+						echo "1. Yes"
+						echo "2. No"
+						echo ""
+						echo "NOTE: Write number only!"
+						read -s uv
+
+						if [ "$uv" == "1" ];
+							then
+								undervolt="1"
+								s_uv="true"
+								g_clock="0"
+								gpu_clock="false"
+						elif [ "$uv" == "2" ];
+							then
+								undervolt="0"
+								s_uv="false"
+								g_clock="1"
+								gpu_clock="true"
+						fi
+				elif [ "$oc" == "2" ];
+					then
+						overclock="0"
+						clock="false"
+						g_clock="0"
+						gpu_clock="false"
+
+						echo ""
+						echo "Undervolt Version ?"
+						echo "1. Yes"
+						echo "2. No"
+						echo ""
+						echo "NOTE: Write number only!"
+						read -s uv
+
+						if [ "$uv" == "1" ];
+							then
+								undervolt="1"
+								s_uv="true"
+						elif [ "$uv" == "2" ];
+							then
+								undervolt="0"
+								s_uv="false"
+						fi
+				fi
+		fi
+elif [ "$kdev" == "2" ];
 	then
-		name="Kizuna Kernel"
-elif [ "$kname" == "3" ];
-	then
+		echo ""
 		name="Fusion Kernel"
+		echo "Fusion Kernel (@Alanndz & Nicklas373)"
+		echo ""
+		echo "Overclock Version ?"
+		echo "1. Yes"
+		echo "2. No"
+		echo ""
+		echo "NOTE: Write number only!"
+		read -s oc
+
+		if [ "$oc" == "1" ];
+			then
+				overclock="1"
+				clock="true"
+		elif [ "$oc" == "2" ];
+			then
+				overclock="0"
+				clock="false"
+		fi
+
+		undervolt="0"
+		s_uv="false"
+		g_clock="0"
+		gpu_clock="false"
+
+		echo ""
+		echo "Use Common Touchscreen nodes ?"
+		echo ""
+		echo "1. Yes"
+		echo "2. No"
+		echo ""
+		echo "NOTE: Write Number only!"
+		read -s ts_node
+
+		if [ "$ts_node" == "1" ];
+			then
+				ts_common="1"
+		elif [ "$ts_node" == "2" ];
+			then
+				ts_common="2"
+		fi
 fi
 
+# Run next step
+krelease
+}
+
+function krelease() {
 echo ""
 echo "Which release type that you want to compile ?"
 echo ""
@@ -63,49 +184,88 @@ elif [ "$krelease" == "2" ];
 		release="BETA"
 fi
 
-if [ "$kname" == "3" ];
-	then
-		echo ""
-		echo "Which android version that you want to compile ?"
-		echo ""
-		echo "1. Pie"
-		echo "2. Ten"
-		echo "3. Pie - Ten"
-		echo ""
-		echo "NOTE: Write number only!"
-		read -s kversion
+# Run next step
+kversion
+}
 
-		if [ "$kversion" == "1" ];
-			then
-				version="9.0"
-		elif [ "$kversion" == "2" ];
-			then
-				version="10.0"
-		elif [ "$kversion" == "3" ];
-			then
-				version="9.0 - 10.0"
-		fi
-else
-	echo "Mido Kernel only for Android 10"
-	version="10.0"
+function kversion() {
+echo ""
+echo "Select your android version"
+echo "1. 10"
+echo "2. 11"
+echo ""
+echo "NOTE: Write number only !"
+read -s version_avr
+
+if [ "$version_avr" == "1" ];
+	then
+		avr="0"
+		avr_str="Android 10.0"
+elif [ "$version_avr" == "2" ];
+	then
+		avr="1"
+		avr_str="Android 11.0"
 fi
 
+# Run next step
+clang
+}
+
+function clang() {
+echo ""
+echo "Select your compiler :3"
+echo ""
+echo "1. Proton Clang 12"
+echo "2. AOSP Clang + GCC 4.9 (Non-elf)"
+echo "3. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+echo "4. SDCLANG 8.0.12 + GCC 4.9 (Non-elf)"
+echo ""
+echo "NOTE: Write number only !"
+read -s clang
+
+if [ "$clang" == "1" ];
+	then
+		comp="1"
+		ext_clang="Proton Clang 12"
+elif [ "$clang" == "2" ];
+	then
+		comp="2"
+		ext_clang="AOSP Clang + GCC 4.9 (Non-elf)"
+elif [ "$clang" == "3" ];
+	then
+		comp="3"
+		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+elif [ "$clang" == "4" ];
+	then
+		comp="4"
+		ext_clang="SDCLANG 8.0.12 + GCC 4.9 (Non-elf)"
+fi
+
+# Run next step
+main
+}
+
+function main() {
 # Show user option
 echo ""
 echo "========================================="
 echo "| Your selection			|"
 echo "|					|"
-echo "| Devices	: $devices		|"
-echo "| Kernel	: $name			|"
-echo "| Release	: $release		|"
-echo "| Android Ver	: $version	|"
+echo "| Devices	: $devices	|"
+echo "| Kernel	: $name		|"
+echo "| Release	: $release			|"
+echo "| Android Ver	: $avr_str		|"
+echo "| Ext Clang	: $ext_clang	|"
+echo "| CPU Overclock	: $clock			|"
+echo "| GPU Overclock	: $gpu_clock			|"
+echo "| Undervolt	: $s_uv			|"
 echo "|					|"
 echo "| is this right option ?		|"
 echo "|					|"
 echo "| 1. Yes				|"
-echo "| 2. No				|"
+echo "| 2. No					|"
 echo "|					|"
-echo "| NOTE: Write number only!	|"
+echo "| NOTE: Write number only!		|"
 echo "========================================="
 read -s user
 
@@ -116,31 +276,38 @@ if [ "$user" == "2" ];
 		exit 1
 elif [ "$user" == "1" ];
 	then
-		echo "Configuring Main Script"
+		echo "Configuring Build Script"
 		if [ "$kname" == "1" ];
 			then
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/nicklas/scripts/build
 		elif [ "$kname" == "2" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/nicklas/scripts/build
 		elif [ "$kname" == "3" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/nicklas/scripts/build
+		fi
+		if [ "$avr" == "0" ];
+			then
+				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=0/g' ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=0/g' ~/nicklas/scripts/build
+		elif [ "$avr" == "1" ];
+			then
+				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' ~/nicklas/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ~/nicklas/scripts/build
 		elif [ "$kdev" == "2" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/scripts/build
-
-				echo ""
+				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/nicklas/scripts/build
 				echo "Want to use custom cam ?"
 				echo "1. yes"
 				echo "2. no"
@@ -148,41 +315,101 @@ elif [ "$user" == "1" ];
 				read -s cam
 				if [ "$cam" == "1" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ~/nicklas/scripts/build
 				elif [ "$cam" == "2" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ~/nicklas/scripts/build
 				fi
 		fi
-		if [ "$kversion" == "1" ];
-			then
-				sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_AND_VER=1/KERNEL_AND_VER=0/g'  ~/scripts/build
-		elif [ "$kversion" == "2" ];
-			then
-				sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=1/g'  ~/scripts/build
-		elif [ "$kversion" == "3" ];
-			then
-				sed -i -e 's/KERNEL_AND_VER=1/KERNEL_AND_VER=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=2/g'  ~/scripts/build
-		fi
+		sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=1/g'  ~/nicklas/scripts/build
+		sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=1/g'  ~/nicklas/scripts/build
 		if [ "$krelease" == "1" ];
 			then
-				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ~/nicklas/scripts/build
 		elif [ "$krelease" == "2" ];
 			then
-				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ~/nicklas/scripts/build
 		fi
 		if [ "$comp" == "1" ];
 			then
-				sed -i -e 's/KERNEL_COMPILER=0/KERNEL_COMPILER=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=1/KERNEL_GCC=0/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  ~/nicklas/scripts/build
 		elif [ "$comp" == "2" ];
 			then
-				sed -i -e 's/KERNEL_COMPILER=1/KERNEL_COMPILER=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  ~/nicklas/scripts/build
+		elif [ "$comp" == "3" ];
+			then
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  ~/nicklas/scripts/build
+		elif [ "$comp" == "4" ];
+			then
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  ~/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  ~/nicklas/scripts/build
 		fi
+		if [ "$kdev" == "1" ];
+			then
+				if [ "$overclock" == "0" ] && [ "$undervolt" == "0" ];
+					then
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/nicklas/scripts/build
+						sed -i -e 's/KERNEL_UNDERVOLT=1/KERNEL_UNDERVOLT=0/g'   ~/nicklas/scripts/build
+				elif [ "$overclock" == "0" ] && [ "$undervolt" == "1" ];
+					then
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'	~/nicklas/scripts/build
+						sed -i -e 's/KERNEL_UNDERVOLT=0/KERNEL_UNDERVOLT=1/g'   ~/nicklas/scripts/build
+				elif [ "$overclock" == "1" ] && [ "$undervolt" == "0" ];
+					then
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/nicklas/scripts/build
+						sed -i -e 's/KERNEL_UNDERVOLT=1/KERNEL_UNDERVOLT=0/g'	~/nicklas/scripts/build
+				fi
+		elif [ "$kdev" == "2" ];
+			then
+				if [ "$overclock" == "0" ];
+					then
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/nicklas/scripts/build
+				elif [ "$overclock" == "1" ];
+					then
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/nicklas/scripts/build
+				fi
+
+				sed -i -e 's/KERNEL_UNDERVOLT=0/KERNEL_UNDERVOLT=0/g'   ~/nicklas/scripts/build
+
+				if [ "$ts_common" == "1" ];
+					then
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	~/nicklas/scripts/build
+				elif [ "$ts_common" == "2" ];
+					then
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	~/nicklas/scripts/build
+				fi
+		fi
+fi
+
+# Build decision
+echo ""
+echo "Want to compile now ? "
+echo ""
+echo "1. Yes "
+echo "2. No "
+read -s build
+
+# Running build script
+if [ "$build" == "1" ];
+	then
+		bash build
+elif [ "$build" == "2" ];
+	then
+		echo "See ya"
+		exit 1
 fi
 }
 
 # run main
-main
+init
