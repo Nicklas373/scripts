@@ -242,6 +242,28 @@ elif [ "$clang" == "4" ];
 fi
 
 # Run next step
+clean
+}
+
+function clean() {
+# Start a clean build
+echo ""
+echo "Make a clean build ?"
+echo "1. Yes"
+echo "2. No"
+echo ""
+echo "NOTE: Write number only !"
+read -s stats
+
+if [ "$stats" == "1" ];
+	then
+		clean="1"
+elif [ "$stats" == "2" ];
+	then
+		clean="2"
+fi
+
+# Run next step
 main
 }
 
@@ -390,14 +412,21 @@ elif [ "$user" == "1" ];
 						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	~/nicklas/scripts/build
 				fi
 		fi
+		if [ "$clean" == "1" ];
+			then
+				sed -i -e 's/KERNEL_CLEAN_BUILD=0/KERNEL_CLEAN_BUILD=1/g' ~/nicklas/scripts/build
+		elif [ "$clean" == "2" ];
+			then
+				sed -i -e 's/KERNEL_CLEAN_BUILD=1/KERNEL_CLEAN_BUILD=0/g' ~/nicklas/scripts/build
+		fi
 fi
 
 # Build decision
 echo ""
 echo "Want to compile now ? "
 echo ""
-echo "1. Yes "
-echo "2. No "
+echo "1. Yes"
+echo "2. No"
 read -s build
 
 # Running build script

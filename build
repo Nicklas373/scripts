@@ -8,10 +8,11 @@
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Import separate telegram environment
-source "${HOME}/nicklas/scripts/telegram_env.sh"
+# Import separate environment
+source "${HOME}/nicklas/scripts/telegram"
+source "${HOME}/nicklas/scripts/hash"
 
-# Script Revision = 20210305
+# Script Revision = 20210306
 
 # Build Information
 #
@@ -42,6 +43,9 @@ source "${HOME}/nicklas/scripts/telegram_env.sh"
 # Kernel Undervolt
 # 0 = Non-UV || 1 = UV
 #
+# Kernel Build Status
+# 0 = Dirty / Cache || 1 = Clean
+#
 # Lavender Cam Patch
 # 0 = Old cam || 1 = New cam
 #
@@ -60,9 +64,10 @@ KERNEL_AVR=1
 KERNEL_CODENAME=0
 KERNEL_CLANG=2
 KERNEL_GCC=1
+KERNEL_OVERCLOCK=0
+KERNEL_UNDERVOLT=1
+KERNEL_CLEAN_BUILD=1
 KERNEL_NEW_CAM=0
-KERNEL_OVERCLOCK=1
-KERNEL_UNDERVOLT=0
 KERNEL_LAVENDER_TS_COMMON=0
 
 # Environment init
@@ -71,6 +76,15 @@ function env_init() {
 # Set ARCH
 export ARCH=arm64
 export SUBARCH=arm64
+
+# Set Build Status
+if [ "$KERNEL_CLEAN_BUILD" == "0" ];
+	then
+		clean="dirty"
+elif [ "$KERNEL_CLEAN_BUILD" == "1" ];
+	then
+		clean="clean"
+fi
 }
 
 # Mido init
@@ -88,6 +102,7 @@ if [ "$KERNEL_NAME" == "0" ];
 		KERNEL_REV="r9"
 		KERNEL_REL="CAF"
 		KERNEL_RELEASE_NAME="~ 大崎甘奈 ~"
+		KERNEL_HASH=${CAF_MIDO_HASH}
 elif [ "$KERNEL_NAME" == "1" ];
 	then
 		# Define Kernel Specific Tag
@@ -105,6 +120,7 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_RELEASE_NAME=" ~	Team.Luna ~ "
 		KERNEL_REV="r8"
 		KERNEL_REL="Kizuna"
+		KERNEL_HASH=${KIZUNA_MIDO_HASH}
 fi
 
 # Define CI Specific Environment
@@ -142,6 +158,15 @@ elif [ "$KERNEL_STATE" == "0" ];
 	then
 		KERNEL_RELEASE="BETA"
 fi
+
+# Define Specific Telegram Environment
+if [ "$KERNEL_STATE" == "1" ];
+	then
+		TELEGRAM_GROUP_ID=${telegram_group_official_mido_id}
+elif [ "$KERNEL_STATE" == "0" ];
+	then
+		TELEGRAM_GROUP_ID=${telegram_group_dev_id}
+fi
 }
 
 # Lavender init
@@ -167,6 +192,7 @@ if [ "$KERNEL_OVERCLOCK" == "1" ];
 fi
 TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
 KERNEL_REV="r11"
+KERNEL_HASH=${FUSION_LAVENDER_HASH}
 if [ "$KERNEL_OVERCLOCK" == "0" ];
 	then
 		KERNEL_REL="Fusion"
@@ -190,6 +216,14 @@ elif [ "$KERNEL_STATE" == "0" ];
 		KERNEL_VERSION="r11"
 		KVERSION="${FUSION_CODENAME}-${KERNEL_VERSION}"
 		ZIP_NAME="${KERNEL_REL}-${KVERSION}-${CODENAME}-$(date "+%H%M-%d%m%Y").zip"
+fi
+
+if [ "$KERNEL_STATE" == "1" ];
+	then
+		TELEGRAM_GROUP_ID=${telegram_group_official_lavender_id}
+elif [ "$KERNEL_STATE" == "0" ];
+	then
+		TELEGRAM_GROUP_ID=${telegram_group_dev_id}
 fi
 }
 
@@ -279,7 +313,7 @@ TELEGRAM_TOOLCHAIN_VER=$(cat ${KERNEL}/out/include/generated/compile.h | grep LI
 
 # Telegram Bot Service || Compiling Notification
 function bot_template() {
-curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendMessage -d chat_id=${telegram_group_id} -d "parse_mode=HTML" -d text="$(
+curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendMessage -d chat_id=${TELEGRAM_GROUP_ID} -d "parse_mode=HTML" -d text="$(
 	for POST in "${@}";
 		do
 			echo "${POST}"
@@ -367,15 +401,39 @@ function bot_build_failed() {
 			"<b>Compile Time :</b><code> $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s)</code>"
 }
 
+# Telegram Bot Service || Git commit log message
+function bot_message() {
+	bot_template    "<b>|| HANA-CI Build Bot ||</b>" \
+			"" \
+			"<b>Temporary Changelog</b>" \
+			"" \
+			"$(git log ${KERNEL_HASH}^..HEAD --format='%C(auto)%h | %s | Author: %C(green)%aN%Creset | %aD %n')"
+}
+
 # Telegram sticker message
 function sendStick() {
-	curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendSticker -d sticker="${1}" -d chat_id=${telegram_group_id} &>/dev/null
+	curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendSticker -d sticker="${1}" -d chat_id=${TELEGRAM_GROUP_ID} &>/dev/null
 }
 
 # Compile Mido Begin
 function compile_mido() {
 	cd ${KERNEL}
 	bot_first_compile
+
+# Cleanup specific changed file while before setup for custom CPU/GPU clock
+	rm localversion
+	rm arch/arm64/configs/mido_defconfig
+	cp ${HOME}/nicklas/backup/${CODENAME}/localversion localversion
+	cp ${HOME}/nicklas/backup/${CODENAME}/mido_defconfig arch/arm64/configs/mido_defconfig
+
+# Changed to specific branch
+	git checkout ${KERNEL_BRANCH}
+
+if [ "$KERNEL_CLEAN_BUILD" == "1" ];
+	then
+		make clean && make mrproper
+		rm -rvf out
+fi
 if [ "$KERNEL_OVERCLOCK" == "1" ] && [ "$KERNEL_UNDERVOLT" == "0" ];
 	then
 		rm ${KERNEL}/localversion
@@ -455,13 +513,17 @@ fi
 			bot_build_failed
 			cd ..
 			sendStick "${TELEGRAM_FAIL}"
-			curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 			exit 1
 	fi
 	END=$(date +"%s")
 	DIFF=$(($END - $START))
 	cd ${KERNEL}
 	bot_build_success
+if [ "$KERNEL_STATE" == "0" ];
+	then
+		bot_message
+fi
 	cd ..
 	sendStick "${TELEGRAM_SUCCESS}"
 	cp ${IMAGE} ${HOME}/nicklas/AnyKernel3
@@ -473,6 +535,12 @@ fi
 function compile_lave() {
 	START=$(date +"%s")
 	cd ${KERNEL}
+	git checkout ${KERNEL_BRANCH}
+if [ "$KERNEL_CLEAN_BUILD" == "1" ];
+	then
+		make clean && make mrproper
+		rm -rvf out
+fi
 	sed -i -e 's/CONFIG_ANDROID_NLMK=y/# CONFIG_ANDROID_NLMK is not set/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
 if [ "$KERNEL_LAVENDER_TS_COMMON" == "0" ];
 	then
@@ -540,7 +608,7 @@ fi
 			DIFF=$(($END - $START))
 			bot_build_failed
 			sendStick "${TELEGRAM_FAIL}"
-			curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 			exit 1
 	fi
 	END=$(date +"%s")
@@ -548,6 +616,10 @@ fi
 	cd ${KERNEL}
 	bot_lave_compile
 	bot_build_success
+if [ "$KERNEL_STATE" == "0" ];
+	then
+		bot_message
+fi
 	sendStick "${TELEGRAM_SUCCESS}"
 	cd ..
 	cp ${IMAGE} ${ANYKERNEL}
@@ -630,13 +702,18 @@ function kernel_upload() {
 
 					if [ "$KERNEL_OVERCLOCK" == "0" ] && [ "$KERNEL_UNDERVOLT" == "0" ];
 						then
-							curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+							curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 					else
-							curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+							curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 					fi
 
 					echo "Upload log..."
-					curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+
+					echo "Upload git log.."
+					git log ${KERNEL_HASH}^..HEAD --format="format:%C(auto)%h | %s | Author: %C(green)%aN%Creset | %cD" > ${KERNEL_TEMP}/git.log
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/git.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+
 			elif [ "$KERNEL_STATE" == "1" ];
 				then
 					# Upload kernel file
@@ -644,9 +721,9 @@ function kernel_upload() {
 
 					if [ "$KERNEL_OVERCLOCK" == "0" ] && [ "$KERNEL_UNDERVOLT" == "0" ];
 						then
-							curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+							curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 					else
-							curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+							curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 					fi
 			fi
 	elif [ "$KERNEL_CODENAME" == "1" ];
@@ -655,14 +732,19 @@ function kernel_upload() {
 				then
 					# Upload kernel file
 					echo "Upload kernel file..."
-					curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/$ZIP_NAME" https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/$ZIP_NAME" https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 
 					echo "Upload log file..."
-					curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+
+					echo "Upload git log..."
+					git log ${KERNEL_HASH}^..HEAD --format="format:%C(auto)%h | %s | Author: %C(green)%aN%Creset | %cD" > ${KERNEL_TEMP}/git.log
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/git.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+
 			else
 				# Upload kernel file
 				echo "Upload kernel file..."
-				curl -F chat_id=${telegram_group_id} -F document="@${KERNEL_TEMP}/$ZIP_NAME" https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/$ZIP_NAME" https://api.telegram.org/bot${telegram_bot_id}/sendDocument
 			fi
 	fi
 }
