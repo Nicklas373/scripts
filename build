@@ -64,8 +64,8 @@ KERNEL_AVR=1
 KERNEL_CODENAME=0
 KERNEL_CLANG=2
 KERNEL_GCC=1
-KERNEL_OVERCLOCK=0
-KERNEL_UNDERVOLT=1
+KERNEL_OVERCLOCK=1
+KERNEL_UNDERVOLT=0
 KERNEL_CLEAN_BUILD=1
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
@@ -85,6 +85,7 @@ elif [ "$KERNEL_CLEAN_BUILD" == "1" ];
 	then
 		clean="clean"
 fi
+
 }
 
 # Mido init
@@ -123,10 +124,6 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_HASH=${KIZUNA_MIDO_HASH}
 fi
 
-# Define CI Specific Environment
-export KBUILD_BUILD_USER=Amana
-export KBUILD_BUILD_HOST=Team.Luna
-
 # Define Global Environment for Mido
 IMAGE="${HOME}/kernel/kernel_xiaomi_msm8953-4.9/out/arch/arm64/boot/Image.gz-dtb"
 KERNEL="${HOME}/kernel/kernel_xiaomi_msm8953-4.9"
@@ -149,6 +146,10 @@ fi
 CODENAME="mido"
 KERNEL_CODE="Mido"
 TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
+
+# Set Build Host
+export KBUILD_BUILD_USER=Amana
+export KBUILD_BUILD_HOST=Team.Luna
 
 # Define Kernel Release State
 if [ "$KERNEL_STATE" == "1" ];
@@ -176,7 +177,7 @@ function lave_init() {
 KERNEL_SCHED="EAS"
 KERNEL_BRANCH="fusion-nodebug"
 
-# Define CI Specific Environment
+# Define Build Host
 export KBUILD_BUILD_USER=alanndz-nicklas373
 export KBUILD_BUILD_HOST=fusion_lavender-Dev
 
@@ -205,14 +206,14 @@ fi
 if [ "$KERNEL_STATE" == "1" ];
 	then
 		KERNEL_RELEASE="Stable"
-		FUSION_CODENAME="UNKNOWN"
+		FUSION_CODENAME="Water_Edge"
 		KERNEL_VERSION="r11"
 		KVERSION="${FUSION_CODENAME}-${KERNEL_VERSION}"
 		ZIP_NAME="${KERNEL_REL}-${KVERSION}-${CODENAME}-$(date "+%H%M-%d%m%Y").zip"
 elif [ "$KERNEL_STATE" == "0" ];
 	then
 		KERNEL_RELEASE="BETA"
-		FUSION_CODENAME="UNKNOWN"
+		FUSION_CODENAME="Water_Edge"
 		KERNEL_VERSION="r11"
 		KVERSION="${FUSION_CODENAME}-${KERNEL_VERSION}"
 		ZIP_NAME="${KERNEL_REL}-${KVERSION}-${CODENAME}-$(date "+%H%M-%d%m%Y").zip"
@@ -728,6 +729,7 @@ function kernel_upload() {
 			fi
 	elif [ "$KERNEL_CODENAME" == "1" ];
 		then
+			cd ${KERNEL}
 			if [ "$KERNEL_STATE" == "0" ];
 				then
 					# Upload kernel file
