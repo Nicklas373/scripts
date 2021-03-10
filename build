@@ -12,7 +12,7 @@
 source "${HOME}/nicklas/scripts/telegram"
 source "${HOME}/nicklas/scripts/hash"
 
-# Script Revision = 20210306
+# Script Revision = 20210311
 
 # Build Information
 #
@@ -61,7 +61,7 @@ KERNEL_SCHED=1
 KERNEL_STATE=0
 KERNEL_AND_VER=1
 KERNEL_AVR=1
-KERNEL_CODENAME=0
+KERNEL_CODENAME=1
 KERNEL_CLANG=2
 KERNEL_GCC=1
 KERNEL_OVERCLOCK=1
@@ -102,7 +102,7 @@ if [ "$KERNEL_NAME" == "0" ];
 		KERNEL_BRANCH="lineage-17.1"
 		KERNEL_REV="r9"
 		KERNEL_REL="CAF"
-		KERNEL_RELEASE_NAME="~ 大崎甘奈 ~"
+		KERNEL_RELEASE_NAME="~ 大崎甘奈 ~"?
 		KERNEL_HASH=${CAF_MIDO_HASH}
 elif [ "$KERNEL_NAME" == "1" ];
 	then
@@ -214,6 +214,7 @@ elif [ "$KERNEL_STATE" == "0" ];
 	then
 		KERNEL_RELEASE="BETA"
 		FUSION_CODENAME="Water_Edge"
+		KERNEL_RELEASE_NAME="Water Edge"
 		KERNEL_VERSION="r11"
 		KVERSION="${FUSION_CODENAME}-${KERNEL_VERSION}"
 		ZIP_NAME="${KERNEL_REL}-${KVERSION}-${CODENAME}-$(date "+%H%M-%d%m%Y").zip"
@@ -329,7 +330,8 @@ function bot_first_compile() {
 			"<b>${KERNEL_REL} ${KERNEL_CLOCK} Kernel build Start!</b>" \
 			"" \
 			"============= Build Information ================" \
-			"<b>Build Status :</b><code> ${KERNEL_RELEASE} </code>" \
+			"<b>Release Status :</b><code> ${KERNEL_RELEASE} </code>" \
+			"<b>Build Status :</b><code> ${clean} </code>" \
 			"<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
 			"<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
 			"" \
@@ -381,7 +383,7 @@ function bot_lave_compile() {
 				"<b>Kernel Version:</b> <code>${TELEGRAM_KERNEL_VER}</code>" \
 				"<b>Type:</b> <code>${KERNEL_SCHED}</code>" \
 				"<b>Commit:</b> <code>$(git log --pretty=format:'%h : %s' -1)</code>" \
-				"<b>Started on:</b> <code>$(hostname)</code>" \
+				"<b>Started on:</b> <code>${TELEGRAM_COMPILER_NAME}@${TELEGRAM_COMPILER_HOST}</code>" \
 				"<b>Compiler:</b> <code>${TELEGRAM_TOOLCHAIN_VER}</code>" \
 				"<b>Started at</b> <code>${KERNEL_DATE}</code>"
 }
@@ -424,7 +426,7 @@ function compile_mido() {
 # Cleanup specific changed file while before setup for custom CPU/GPU clock
 	rm localversion
 	rm arch/arm64/configs/mido_defconfig
-	cp ${HOME}/nicklas/backup/${CODENAME}/localversion localversion
+	echo "-キズナ" > localversion
 	cp ${HOME}/nicklas/backup/${CODENAME}/mido_defconfig arch/arm64/configs/mido_defconfig
 
 # Changed to specific branch
@@ -537,6 +539,10 @@ function compile_lave() {
 	START=$(date +"%s")
 	cd ${KERNEL}
 	git checkout ${KERNEL_BRANCH}
+if [ "$KERNEL_STATE" == "0" ];
+	then
+		bot_first_compile
+fi
 if [ "$KERNEL_CLEAN_BUILD" == "1" ];
 	then
 		make clean && make mrproper
@@ -615,7 +621,10 @@ fi
 	END=$(date +"%s")
 	DIFF=$(($END - $START))
 	cd ${KERNEL}
-	bot_lave_compile
+if [ "$KERNEL_STATE" == "1" ];
+	then
+		bot_lave_compile
+fi
 	bot_build_success
 if [ "$KERNEL_STATE" == "0" ];
 	then
@@ -730,6 +739,7 @@ function kernel_upload() {
 	elif [ "$KERNEL_CODENAME" == "1" ];
 		then
 			cd ${KERNEL}
+			bot_complete_compile
 			if [ "$KERNEL_STATE" == "0" ];
 				then
 					# Upload kernel file

@@ -258,9 +258,11 @@ read -s stats
 if [ "$stats" == "1" ];
 	then
 		clean="1"
+		build="Clean"
 elif [ "$stats" == "2" ];
 	then
 		clean="2"
+		build="Dirty"
 fi
 
 # Run next step
@@ -276,6 +278,7 @@ echo "|					|"
 echo "| Devices	: $devices	|"
 echo "| Kernel	: $name		|"
 echo "| Release	: $release			|"
+echo "| Build	: $build	|"
 echo "| Android Ver	: $avr_str		|"
 echo "| Ext Clang	: $ext_clang	|"
 echo "| CPU Overclock	: $clock			|"
@@ -330,6 +333,7 @@ elif [ "$user" == "1" ];
 		elif [ "$kdev" == "2" ];
 			then
 				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/nicklas/scripts/build
+				echo ""
 				echo "Want to use custom cam ?"
 				echo "1. yes"
 				echo "2. no"
@@ -422,7 +426,7 @@ elif [ "$user" == "1" ];
 fi
 
 # Build decision
-echo ""
+echo " "
 echo "Want to compile now ? "
 echo ""
 echo "1. Yes"
