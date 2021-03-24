@@ -12,7 +12,7 @@
 source "${HOME}/nicklas/scripts/telegram"
 source "${HOME}/nicklas/scripts/hash"
 
-# Script Revision = 20210311
+# Script Revision = 20210317
 
 # Build Information
 #
@@ -56,7 +56,7 @@ source "${HOME}/nicklas/scripts/hash"
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=0
+KERNEL_NAME=1
 KERNEL_SCHED=1
 KERNEL_STATE=0
 KERNEL_AND_VER=1
@@ -65,9 +65,9 @@ KERNEL_CODENAME=0
 KERNEL_CLANG=2
 KERNEL_GCC=1
 KERNEL_OVERCLOCK=0
-KERNEL_UNDERVOLT=0
+KERNEL_UNDERVOLT=1
 KERNEL_CLEAN_BUILD=1
-KERNEL_NEW_CAM=0
+KERNEL_NEW_CAM=1
 KERNEL_LAVENDER_TS_COMMON=0
 
 # Environment init
@@ -190,10 +190,18 @@ KERNEL_CODE="Lavender"
 if [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
 		KERNEL_CLOCK="OC"
+		KERNEL_CLK_STR="Overclock"
+		KERNEL_DEVICE="CPU"
+elif [ "$KERNEL_OVERCLOCK" == "0" ];
+	then
+		KERNEL_CLOCK=""
+		KERNEL_CLK_STR="Default"
+                KERNEL_DEVICE=""
 fi
 TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
 KERNEL_REV="r11"
 KERNEL_HASH=${FUSION_LAVENDER_HASH}
+KERNEL_CAF_TAG="LA.UM.8.2.r2-04000-sdm660.0"
 if [ "$KERNEL_OVERCLOCK" == "0" ];
 	then
 		KERNEL_REL="Fusion"
@@ -440,7 +448,11 @@ if [ "$KERNEL_CLEAN_BUILD" == "1" ];
 		make clean && make mrproper
 		rm -rvf out
 fi
-if [ "$KERNEL_NAME" == "1" ];
+if [ "$KERNEL_NAME" == "0" ];
+	then
+		rm ${KERNEL}/localversion
+		echo "-perf" > ${KERNEL}/localversion
+elif [ "$KERNEL_NAME" == "1" ];
 	then
 		if [ "$KERNEL_OVERCLOCK" == "1" ] && [ "$KERNEL_UNDERVOLT" == "0" ];
 			then
@@ -448,8 +460,7 @@ if [ "$KERNEL_NAME" == "1" ];
 				echo "-キズナ-OC-r8" > ${KERNEL}/localversion
 				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_UNDERVOLT=y/# CONFIG_MACH_XIAOMI_C6_UNDERVOLT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OC_UV=y/# CONFIG_MACH_XIAOMI_C6_OC_UV is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_UNDERVOLTED=y/# CONFIG_MACH_XIAOMI_C6_UNDERVOLTED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 		elif [ "$KERNEL_OVERCLOCK" == "0" ] && [ "$KERNEL_UNDERVOLT" == "1" ];
 			then
@@ -457,17 +468,15 @@ if [ "$KERNEL_NAME" == "1" ];
                 		echo "-キズナ-UV-r8" > ${KERNEL}/localversion
 				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_UNDERVOLT is not set/CONFIG_MACH_XIAOMI_C6_UNDERVOLT=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OC_UV=y/# CONFIG_MACH_XIAOMI_C6_OC_UV is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_UNDERVOLTED is not set/CONFIG_MACH_XIAOMI_C6_UNDERVOLTED=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 		elif [ "$KERNEL_OVERCLOCK" == "0" ] && [ "$KERNEL_UNDERVOLT" == "0" ];
 			then
 				rm ${KERNEL}/localversion
 				echo "-キズナ-r8" > ${KERNEL}/localversion
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_UNDERVOLT=y/# CONFIG_MACH_XIAOMI_C6_UNDERVOLT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_UNDERVOLT=y/# CONFIG_MACH_XIAOMI_C6_UNDERVOLT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OC_UV=y/# CONFIG_MACH_XIAOMI_C6_OC_UV is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_UNDERVOLTED=y/# CONFIG_MACH_XIAOMI_C6_UNDERVOLTED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
 		fi
 fi
@@ -504,14 +513,14 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 				HOSTAR=llvm-ar \
 				CLANG_TRIPLE=aarch64-linux-gnu- \
 				CROSS_COMPILE=aarch64-linux-gnu- \
-				CROSS_COMPILE_ARM32=arm-linux-gnueabi- > ${KERNEL_TEMP}/compile.log
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
 elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
 				CC=clang \
 				CROSS_COMPILE=aarch64-linux-gnu- \
-				CROSS_COMPILE_ARM32=arm-linux-gnueabi- > ${KERNEL_TEMP}/compile.log
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
 fi
 	if ! [ -a $IMAGE ];
 		then
@@ -592,7 +601,7 @@ fi
 	PATH="$CLANG_PATH"
 if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 	then
-		make -j$(nproc --all) -> ${KERNEL_TEMP}/compile.log O=out \
+		make -j$(nproc --all) O=out \
 					CC=clang \
 					AR=llvm-ar \
 					NM=llvm-nm \
@@ -606,13 +615,13 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 					HOSTAR=llvm-ar \
 					CLANG_TRIPLE=aarch64-linux-gnu- \
 					CROSS_COMPILE=aarch64-linux-gnu- \
-					CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
 elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
-		make -j$(nproc --all) -> ${KERNEL_TEMP}/compile.log O=out \
+		make -j$(nproc --all) O=out \
 					CC=clang \
 					CROSS_COMPILE=aarch64-linux-gnu- \
-					CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
 fi
 	if ! [ -a $IMAGE ];
 		then
