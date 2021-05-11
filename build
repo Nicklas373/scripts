@@ -406,13 +406,10 @@ function compile_mido() {
 	bot_first_compile
 
 # Cleanup specific changed file while before setup for custom CPU/GPU clock
-if [ "$KERNEL_NAME" == "1" ];
-	then
-		rm localversion
-		rm arch/arm64/configs/mido_defconfig
-		echo "-キズナ" > localversion
-		cp ${HOME}/nicklas/backup/${CODENAME}/mido_defconfig arch/arm64/configs/mido_defconfig
-fi
+	rm localversion
+	rm arch/arm64/configs/mido_defconfig
+	echo "-キズナ" > localversion
+	cp ${HOME}/nicklas/backup/${CODENAME}/${KERNEL_REL}/${CODENAME}_defconfig arch/arm64/configs/mido_defconfig
 
 # Changed to specific branch
 git checkout ${KERNEL_BRANCH}
@@ -697,6 +694,21 @@ function cleanup() {
 	rm -rvf ${ANYKERNEL}/Image.gz-dtb
 	rm -rvf ${KERNEL_TEMP}/*.zip
 	rm -rvf ${KERNEL_TEMP}/*.log
+	rm ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
+	rm ${HOME}/kernel/msm-4.9/arch/arm64/configs/lavender_defconfig
+if [ "$KERNEL_NAME" == "0" ];
+	then
+		cp ${HOME}/nicklas/backup/mido/caf/mido_defconfig ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
+		rm ${HOME}/kernel/msm-4.9/localversion
+		echo "-perf" > ${HOME}/kernel/msm-4.9/localversion
+elif [ "$KERNEL_NAME" == "1"];
+	then
+		cp ${HOME}/nicklas/backup/mido/caf/mido_defconfig ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
+		rm ${HOME}/kernel/msm-4.9/localversion
+		echo "-キズナ" > ${HOME}/kernel/msm-4.9/localversion
+fi
+	cp ${HOME}/nicklas/backup/lavender/lavender_defconfig ${HOME}/kernel/msm-4.4/arch/arm64/configs/lavender_defconfig
+	echo "Restoring all config back to last revision !"
 }
 
 function run() {
