@@ -9,8 +9,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Import separate environment
-source "${HOME}/nicklas/scripts/telegram"
-source "${HOME}/nicklas/scripts/hash"
+source "/build/nicklas/scripts/telegram"
+source "/build/nicklas/scripts/hash"
 
 # Script Revision = 20210511
 
@@ -53,16 +53,16 @@ source "${HOME}/nicklas/scripts/hash"
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=1
+KERNEL_NAME=0
 KERNEL_SCHED=1
 KERNEL_STATE=0
 KERNEL_AND_VER=1
 KERNEL_AVR=1
-KERNEL_CODENAME=1
+KERNEL_CODENAME=0
 KERNEL_CLANG=2
 KERNEL_GCC=1
-KERNEL_OVERCLOCK=1
-KERNEL_CLEAN_BUILD=1
+KERNEL_OVERCLOCK=0
+KERNEL_CLEAN_BUILD=0
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
 
@@ -98,6 +98,7 @@ if [ "$KERNEL_NAME" == "0" ];
 		KERNEL_BRANCH="lineage-17.1"
 		KERNEL_REV="r12"
 		KERNEL_REL="CAF"
+		KERNEL_ALT="caf"
 		KERNEL_RELEASE_NAME="LTS"
 		KERNEL_HASH=${CAF_MIDO_HASH}
 		ANYKERNEL_BRANCH="caf/mido-4.9"
@@ -118,14 +119,16 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_RELEASE_NAME="シャイノグラフィ || LTS"
 		KERNEL_REV="r10"
 		KERNEL_REL="Kizuna"
+		KERNEL_ALT="kizuna"
 		KERNEL_HASH=${KIZUNA_MIDO_HASH}
 		ANYKERNEL_BRANCH="caf/mido-kizuna-4.9"
 fi
 
 # Define Global Environment for Mido
-IMAGE="${HOME}/kernel/msm-4.9/out/arch/arm64/boot/Image.gz-dtb"
-KERNEL="${HOME}/kernel/msm-4.9"
-KERNEL_TEMP="${HOME}/nicklas/TEMP"
+ANYKERNEL="/build/nicklas/AnyKernel3"
+IMAGE="/build/kernel/msm-4.9/out/arch/arm64/boot/Image.gz-dtb"
+KERNEL="/build/kernel/msm-4.9"
+KERNEL_TEMP="/build/nicklas/TEMP"
 if [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
 		KERNEL_CLOCK="OC"
@@ -174,11 +177,11 @@ KERNEL_BRANCH="fusion-nodebug"
 export KBUILD_BUILD_USER=alanndz-nicklas373
 export KBUILD_BUILD_HOST=fusion_lavender-Dev
 
-KERNEL="${HOME}/kernel/msm-4.4"
-IMAGE="${HOME}/kernel/msm-4.4/out/arch/arm64/boot/Image.gz-dtb"
-ANYKERNEL="${HOME}/nicklas/AnyKernel3"
+KERNEL="/build/kernel/msm-4.4"
+IMAGE="/build/kernel/msm-4.4/out/arch/arm64/boot/Image.gz-dtb"
+ANYKERNEL="/build/nicklas/AnyKernel3"
 ANYKERNEL_BRANCH="lavender"
-KERNEL_TEMP="${HOME}/nicklas/TEMP"
+KERNEL_TEMP="/build/nicklas/TEMP"
 CODENAME="lavender"
 KERNEL_CODE="Lavender"
 if [ "$KERNEL_OVERCLOCK" == "1" ];
@@ -197,6 +200,7 @@ KERNEL_REV="r12"
 KERNEL_HASH=${FUSION_LAVENDER_HASH}
 KERNEL_CAF_TAG="LA.UM.8.2.r2-04400-sdm660.0"
 KERNEL_REL="Fusion"
+KERNEL_ALT="fusion"
 
 # Declare Kernel Release State
 if [ "$KERNEL_STATE" == "1" ];
@@ -257,42 +261,42 @@ if [ "$KERNEL_GCC" == "0" ];
 		if [ "$KERNEL_CLANG" == "0" ];
 			then
 				# Clang environment
-				export CLANG_PATH=${HOME}/compiler/proton/bin
+				export CLANG_PATH=/build/compiler/proton/bin
 				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/compiler/proton/bin/../lib:$PATH"
+				export LD_LIBRARY_PATH="/build/compiler/proton/bin/../lib:$PATH"
 		fi
 elif [ "$KERNEL_GCC" == "1" ];
 	then
 		if [ "$KERNEL_CLANG" == "1" ];
 			then
 				# Clang environment
-				export CLANG_PATH=${HOME}/compiler/aosp-clang/bin
+				export CLANG_PATH=/build/compiler/aosp-clang/bin
 				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/compiler/aosp-clang/bin/../lib:$PATH"
+				export LD_LIBRARY_PATH="/build/compiler/aosp-clang/bin/../lib:$PATH"
 		elif [ "$KERNEL_CLANG" == "2" ];
 			then
 				# Clang environment
-				export CLANG_PATH=${HOME}/compiler/sdclang-12/bin
+				export CLANG_PATH=/build/compiler/sdclang-12/bin
 				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/compiler/sdclang-12/bin/../lib:$PATH"
+				export LD_LIBRARY_PATH="/build/compiler/sdclang-12/bin/../lib:$PATH"
 		elif [ "$KERNEL_CLANG" == "3" ];
 			then
 				# Clang environment
-				export CLANG_PATH=${HOME}/compiler/sdclang-10/bin
+				export CLANG_PATH=/build/compiler/sdclang-10/bin
 				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="${HOME}/compiler/sdclang-10/bin/../lib:$PATH"
+				export LD_LIBRARY_PATH="/build/compiler/sdclang-10/bin/../lib:$PATH"
 		fi
 
 		# GCC environment
-		export CROSS_COMPILE=${HOME}/compiler/gcc_4.9_64/arm64/bin/aarch64-linux-android-
-		export CROSS_COMPILE_ARM32=${HOME}/compiler/gcc_4.9/arm/bin/arm-linux-androideabi-
+		export CROSS_COMPILE=/build/compiler/gcc_4.9_64/arm64/bin/aarch64-linux-android-
+		export CROSS_COMPILE_ARM32=/build/compiler/gcc_4.9/arm/bin/arm-linux-androideabi-
 fi
 }
 
 # Declare Machine Builder
 function builder_init() {
-cat /proc/version > ${HOME}/nicklas/builder
-TELEGRAM_BUILDER=$(cat ${HOME}/nicklas/builder)
+cat /proc/version > /build/nicklas/builder
+TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
 }
 
 # Declare Telegram Bot Aliases
@@ -403,17 +407,11 @@ function sendStick() {
 # Compile Mido Begin
 function compile_mido() {
 	cd ${KERNEL}
+
+	# Changed to specific branch
+	git checkout ${KERNEL_BRANCH}
+
 	bot_first_compile
-
-# Cleanup specific changed file while before setup for custom CPU/GPU clock
-	rm localversion
-	rm arch/arm64/configs/mido_defconfig
-	echo "-キズナ" > localversion
-	cp ${HOME}/nicklas/backup/${CODENAME}/${KERNEL_REL}/${CODENAME}_defconfig arch/arm64/configs/mido_defconfig
-
-# Changed to specific branch
-git checkout ${KERNEL_BRANCH}
-
 if [ "$KERNEL_CLEAN_BUILD" == "1" ];
 	then
 		make clean && make mrproper
@@ -446,16 +444,16 @@ fi
 	make ${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="${HOME}/compiler/proton/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/proton/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "1" ];
 	then
-		CLANG_PATH="${HOME}/compiler/aosp-clang/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/aosp-clang/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "2" ];
 	then
-		CLANG_PATH="${HOME}/compiler/sdclang-12/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/sdclang-12/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="${HOME}/compiler/sdclang-10/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
 if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 	then
@@ -505,7 +503,7 @@ if [ "$KERNEL_STATE" == "0" ];
 fi
 	cd ..
 	sendStick "${TELEGRAM_SUCCESS}"
-	cp ${IMAGE} ${HOME}/nicklas/AnyKernel3
+	cp ${IMAGE} /build/nicklas/AnyKernel3
 	anykernel
 	kernel_upload
 }
@@ -545,16 +543,16 @@ fi
 	make ${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="${HOME}/compiler/proton/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/proton/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "1" ];
 	then
-		CLANG_PATH="${HOME}/compiler/aosp-clang/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/aosp-clang/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "2" ];
 	then
-		CLANG_PATH="${HOME}/compiler/sdclang-12/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/sdclang-12/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="${HOME}/compiler/sdclang-10/bin/:${HOME}/compiler/gcc_4.9_64/arm64/bin/:${HOME}/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
 	PATH="$CLANG_PATH"
 if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
@@ -640,16 +638,12 @@ function anykernel() {
 
 	git checkout ${ANYKERNEL_BRANCH}
 	make -j4
-	if ["$ANYKERNEL_BRANCH" == "caf/mido-4.9" ];
+
+	if [ "$KERNEL_OVERCLOCK" == "0" ];
 		then
 			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
 	else
-		if [ "$KERNEL_OVERCLOCK" == "0" ];
-			then
-				mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
-		else
-			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
-		fi
+		mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
 	fi
 }
 
@@ -694,20 +688,19 @@ function cleanup() {
 	rm -rvf ${ANYKERNEL}/Image.gz-dtb
 	rm -rvf ${KERNEL_TEMP}/*.zip
 	rm -rvf ${KERNEL_TEMP}/*.log
-	rm ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
-	rm ${HOME}/kernel/msm-4.9/arch/arm64/configs/lavender_defconfig
+	rm ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
+if [ "$KERNEL_CODENAME" == "0" ];
+	then
+		rm ${KERNEL}/localversion
+fi
+	cp /build/nicklas/backup/${CODENAME}/${KERNEL_ALT}/${CODENAME}_defconfig ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
 if [ "$KERNEL_NAME" == "0" ];
 	then
-		cp ${HOME}/nicklas/backup/mido/caf/mido_defconfig ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
-		rm ${HOME}/kernel/msm-4.9/localversion
-		echo "-perf" > ${HOME}/kernel/msm-4.9/localversion
+		echo "-perf" > ${KERNEL}/localversion
 elif [ "$KERNEL_NAME" == "1"];
 	then
-		cp ${HOME}/nicklas/backup/mido/caf/mido_defconfig ${HOME}/kernel/msm-4.9/arch/arm64/configs/mido_defconfig
-		rm ${HOME}/kernel/msm-4.9/localversion
-		echo "-キズナ" > ${HOME}/kernel/msm-4.9/localversion
+		echo "-キズナ" > ${KERNEL}/localversion
 fi
-	cp ${HOME}/nicklas/backup/lavender/lavender_defconfig ${HOME}/kernel/msm-4.4/arch/arm64/configs/lavender_defconfig
 	echo "Restoring all config back to last revision !"
 }
 
@@ -731,6 +724,7 @@ if [ "$KERNEL_CODENAME" == "1" ];
 			then
 				compile_lave
 		fi
+		cleanup
 elif [ "$KERNEL_CODENAME" == "0" ];
 	then
 		echo "MIDO"
@@ -740,9 +734,10 @@ elif [ "$KERNEL_CODENAME" == "0" ];
 		clang_init
 		add_init
 		compile_mido
+		cleanup
 fi
 
-cleanup
+# cleanup
 }
 
 # Running
