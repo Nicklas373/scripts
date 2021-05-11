@@ -12,7 +12,7 @@
 source "/build/nicklas/scripts/telegram"
 source "/build/nicklas/scripts/hash"
 
-# Script Revision = 20210511
+# Script Revision = 20210512
 
 # Build Information
 #
@@ -53,16 +53,16 @@ source "/build/nicklas/scripts/hash"
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=0
+KERNEL_NAME=1
 KERNEL_SCHED=1
 KERNEL_STATE=0
 KERNEL_AND_VER=1
 KERNEL_AVR=1
 KERNEL_CODENAME=0
-KERNEL_CLANG=2
-KERNEL_GCC=1
-KERNEL_OVERCLOCK=0
-KERNEL_CLEAN_BUILD=0
+KERNEL_CLANG=0
+KERNEL_GCC=0
+KERNEL_OVERCLOCK=1
+KERNEL_CLEAN_BUILD=1
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
 
@@ -111,7 +111,7 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_SCHED="EAS"
 		if [ "$KERNEL_STATE" == "0" ];
 			then
-				KERNEL_BRANCH="staging/luna"
+				KERNEL_BRANCH="staging/capacity"
 		elif [ "$KERNEL_STATE" == "1" ];
 			then
 				KERNEL_BRANCH="kizuna"
@@ -697,7 +697,7 @@ fi
 if [ "$KERNEL_NAME" == "0" ];
 	then
 		echo "-perf" > ${KERNEL}/localversion
-elif [ "$KERNEL_NAME" == "1"];
+elif [ "$KERNEL_NAME" == "1" ];
 	then
 		echo "-キズナ" > ${KERNEL}/localversion
 fi
@@ -736,8 +736,6 @@ elif [ "$KERNEL_CODENAME" == "0" ];
 		compile_mido
 		cleanup
 fi
-
-# cleanup
 }
 
 # Running
