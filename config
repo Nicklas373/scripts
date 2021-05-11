@@ -47,8 +47,6 @@ if [ "$kdev" == "1" ];
 				name="CAF Kernel"
 				overclock="0"
 				clock="false"
-				undervolt="0"
-				s_uv="false"
 				g_clock="0"
 				gpu_clock="false"
 		elif [ "$kname" == "2" ];
@@ -68,28 +66,6 @@ if [ "$kdev" == "1" ];
 						clock="true"
 						g_clock="1"
 						gpu_clock="true"
-
-						echo ""
-						echo "Undervolt Version ?"
-						echo "1. Yes"
-						echo "2. No"
-						echo ""
-						echo "NOTE: Write number only!"
-						read -s uv
-
-						if [ "$uv" == "1" ];
-							then
-								undervolt="1"
-								s_uv="true"
-								g_clock="0"
-								gpu_clock="false"
-						elif [ "$uv" == "2" ];
-							then
-								undervolt="0"
-								s_uv="false"
-								g_clock="1"
-								gpu_clock="true"
-						fi
 				elif [ "$oc" == "2" ];
 					then
 						overclock="0"
@@ -97,23 +73,6 @@ if [ "$kdev" == "1" ];
 						g_clock="0"
 						gpu_clock="false"
 
-						echo ""
-						echo "Undervolt Version ?"
-						echo "1. Yes"
-						echo "2. No"
-						echo ""
-						echo "NOTE: Write number only!"
-						read -s uv
-
-						if [ "$uv" == "1" ];
-							then
-								undervolt="1"
-								s_uv="true"
-						elif [ "$uv" == "2" ];
-							then
-								undervolt="0"
-								s_uv="false"
-						fi
 				fi
 		fi
 elif [ "$kdev" == "2" ];
@@ -139,8 +98,6 @@ elif [ "$kdev" == "2" ];
 				clock="false"
 		fi
 
-		undervolt="0"
-		s_uv="false"
 		g_clock="0"
 		gpu_clock="false"
 
@@ -215,10 +172,10 @@ function clang() {
 echo ""
 echo "Select your compiler :3"
 echo ""
-echo "1. Proton Clang 12"
+echo "1. Proton Clang 13"
 echo "2. AOSP Clang + GCC 4.9 (Non-elf)"
-echo "3. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
-echo "4. SDCLANG 8.0.12 + GCC 4.9 (Non-elf)"
+echo "3. SDCLANG 12.0.0 + GCC 4.9 (Non-elf)"
+echo "4. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
 echo ""
 echo "NOTE: Write number only !"
 read -s clang
@@ -226,7 +183,7 @@ read -s clang
 if [ "$clang" == "1" ];
 	then
 		comp="1"
-		ext_clang="Proton Clang 12"
+		ext_clang="Proton Clang 13"
 elif [ "$clang" == "2" ];
 	then
 		comp="2"
@@ -234,11 +191,11 @@ elif [ "$clang" == "2" ];
 elif [ "$clang" == "3" ];
 	then
 		comp="3"
-		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+		ext_clang="SDCLANG 12.0.0 + GCC 4.9 (Non-elf)"
 elif [ "$clang" == "4" ];
 	then
 		comp="4"
-		ext_clang="SDCLANG 8.0.12 + GCC 4.9 (Non-elf)"
+		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
 fi
 
 # Run next step
@@ -283,7 +240,6 @@ echo "| Android Ver	: $avr_str		|"
 echo "| Ext Clang	: $ext_clang	|"
 echo "| CPU Overclock	: $clock			|"
 echo "| GPU Overclock	: $gpu_clock			|"
-echo "| Undervolt	: $s_uv			|"
 echo "|					|"
 echo "| is this right option ?		|"
 echo "|					|"
@@ -383,18 +339,12 @@ elif [ "$user" == "1" ];
 		fi
 		if [ "$kdev" == "1" ];
 			then
-				if [ "$overclock" == "0" ] && [ "$undervolt" == "0" ];
+				if [ "$overclock" == "0" ];
 					then
 						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/nicklas/scripts/build
-						sed -i -e 's/KERNEL_UNDERVOLT=1/KERNEL_UNDERVOLT=0/g'   ~/nicklas/scripts/build
-				elif [ "$overclock" == "0" ] && [ "$undervolt" == "1" ];
-					then
-						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'	~/nicklas/scripts/build
-						sed -i -e 's/KERNEL_UNDERVOLT=0/KERNEL_UNDERVOLT=1/g'   ~/nicklas/scripts/build
-				elif [ "$overclock" == "1" ] && [ "$undervolt" == "0" ];
+				elif [ "$overclock" == "1" ];
 					then
 						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/nicklas/scripts/build
-						sed -i -e 's/KERNEL_UNDERVOLT=1/KERNEL_UNDERVOLT=0/g'	~/nicklas/scripts/build
 				fi
 		elif [ "$kdev" == "2" ];
 			then
@@ -405,8 +355,6 @@ elif [ "$user" == "1" ];
 					then
 						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/nicklas/scripts/build
 				fi
-
-				sed -i -e 's/KERNEL_UNDERVOLT=0/KERNEL_UNDERVOLT=0/g'   ~/nicklas/scripts/build
 
 				if [ "$ts_common" == "1" ];
 					then
