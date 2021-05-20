@@ -12,7 +12,7 @@
 source "/build/nicklas/scripts/telegram"
 source "/build/nicklas/scripts/hash"
 
-# Script Revision = 20210512
+# Script Revision = 20210514
 
 # Build Information
 #
@@ -61,8 +61,8 @@ KERNEL_AVR=1
 KERNEL_CODENAME=0
 KERNEL_CLANG=2
 KERNEL_GCC=1
-KERNEL_OVERCLOCK=1
-KERNEL_CLEAN_BUILD=1
+KERNEL_OVERCLOCK=0
+KERNEL_CLEAN_BUILD=0
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
 
@@ -99,7 +99,7 @@ if [ "$KERNEL_NAME" == "0" ];
 		KERNEL_REV="r12"
 		KERNEL_REL="CAF"
 		KERNEL_ALT="caf"
-		KERNEL_RELEASE_NAME="LTS"
+		KERNEL_RELEASE_NAME=" キズナ♪ || LTS "
 		KERNEL_HASH=${CAF_MIDO_HASH}
 		ANYKERNEL_BRANCH="caf/mido-4.9"
 elif [ "$KERNEL_NAME" == "1" ];
@@ -111,12 +111,12 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_SCHED="EAS"
 		if [ "$KERNEL_STATE" == "0" ];
 			then
-				KERNEL_BRANCH="staging/luna"
+				KERNEL_BRANCH="staging/kizuna"
 		elif [ "$KERNEL_STATE" == "1" ];
 			then
 				KERNEL_BRANCH="kizuna"
 		fi
-		KERNEL_RELEASE_NAME="シャイノグラフィ || LTS"
+		KERNEL_RELEASE_NAME=" キズナ♪ || LTS "
 		KERNEL_REV="r10"
 		KERNEL_REL="Kizuna"
 		KERNEL_ALT="kizuna"
@@ -144,8 +144,8 @@ KERNEL_CODE="Mido"
 TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
 
 # Set Build Host
-export KBUILD_BUILD_USER=Amana
-export KBUILD_BUILD_HOST=Team.Luna
+export KBUILD_BUILD_USER=Hana
+export KBUILD_BUILD_HOST=Kizuna
 
 # Define Kernel Release State
 if [ "$KERNEL_STATE" == "1" ];
@@ -171,7 +171,7 @@ function lave_init() {
 
 # Define Kernel Scheduler
 KERNEL_SCHED="EAS"
-KERNEL_BRANCH="fusion-nodebug"
+KERNEL_BRANCH="staging/exfat"
 
 # Define Build Host
 export KBUILD_BUILD_USER=alanndz-nicklas373
@@ -363,7 +363,7 @@ function bot_complete_compile() {
 			"<b>Kernel Linux Version:</b><code> Linux ${TELEGRAM_KERNEL_VER}</code>" \
 			"<b>Kernel Release Ver :</b><code> ${KERNEL_REV} </code>" \
 			"<b>Kernel Codename :</b><code> ${KERNEL_RELEASE_NAME} </code>" \
-			"<b>Kernel Builder :</b><code> ${TELEGRAM_COMPILER_NAME}@${TELEGRAM_COMPILER_HOST}</code>" \
+			"<b>Kernel Hostname :</b><code> ${TELEGRAM_COMPILER_NAME}@${TELEGRAM_COMPILER_HOST}</code>" \
 			"<b>Kernel Toolchain :</b><code> ${TELEGRAM_TOOLCHAIN_VER}</code>" \
 			"<b>Kernel Build Date :</b><code> ${TELEGRAM_UTS_VER}</code>" \
 			"" \
@@ -378,14 +378,14 @@ function bot_complete_compile() {
 function bot_build_success() {
 	bot_template	"<b>|| HANA-CI Build Bot ||</b>" \
 			"" \
-			"<b>${KERNEL_REL} Kernel build Success!</b>"
+			"<b>${KERNEL_REL} Kernel build success!</b>"
 }
 
 # Telegram bot message || failed notification
 function bot_build_failed() {
 	bot_template	"<b>|| HANA-CI Build Bot ||</b>" \
 			"" \
-			"<b>${KERNEL_REL} ${KERNEL_CLOCK} Kernel build Failed!</b>" \
+			"<b>${KERNEL_REL} ${KERNEL_CLOCK} Kernel build failed!</b>" \
 			"" \
 			"<b>Compile Time :</b><code> $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s)</code>"
 }
