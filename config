@@ -174,7 +174,7 @@ echo "Select your compiler :3"
 echo ""
 echo "1. Proton Clang 13"
 echo "2. AOSP Clang + GCC 4.9 (Non-elf)"
-echo "3. SDCLANG 12.1.0 + GCC 4.9 (Non-elf)"
+echo "3. SDCLANG 12.1.1 + GCC 4.9 (Non-elf)"
 echo "4. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
 echo ""
 echo "NOTE: Write number only !"
@@ -191,7 +191,7 @@ elif [ "$clang" == "2" ];
 elif [ "$clang" == "3" ];
 	then
 		comp="3"
-		ext_clang="SDCLANG 12.1.0 + GCC 4.9 (Non-elf)"
+		ext_clang="SDCLANG 12.1.1 + GCC 4.9 (Non-elf)"
 elif [ "$clang" == "4" ];
 	then
 		comp="4"
@@ -303,8 +303,6 @@ elif [ "$user" == "1" ];
 						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  /build/nicklas/scripts/build
 				fi
 		fi
-		sed -i -e 's/KERNEL_AND_VER=2/KERNEL_AND_VER=1/g'  /build/nicklas/scripts/build
-		sed -i -e 's/KERNEL_AND_VER=0/KERNEL_AND_VER=1/g'  /build/nicklas/scripts/build
 		if [ "$krelease" == "1" ];
 			then
 				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  /build/nicklas/scripts/build

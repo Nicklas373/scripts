@@ -12,7 +12,7 @@
 source "/build/nicklas/scripts/telegram"
 source "/build/nicklas/scripts/hash"
 
-# Script Revision = 20210514
+# Script Revision = 20210607
 
 # Build Information
 #
@@ -26,7 +26,7 @@ source "/build/nicklas/scripts/hash"
 # 0 = BETA || 1 = Stable
 #
 # Android Version // AVR
-# 0 = 10.0 || 1 = 11.0 || 2 = 9.0 - 10.0
+# 0 = 10.0 || 1 = 11.0
 #
 # Kernel Codename
 # 0 = Mido || 1 = Lavender
@@ -53,16 +53,15 @@ source "/build/nicklas/scripts/hash"
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=1
+KERNEL_NAME=2
 KERNEL_SCHED=1
 KERNEL_STATE=0
-KERNEL_AND_VER=1
 KERNEL_AVR=1
-KERNEL_CODENAME=0
+KERNEL_CODENAME=1
 KERNEL_CLANG=2
 KERNEL_GCC=1
-KERNEL_OVERCLOCK=0
-KERNEL_CLEAN_BUILD=0
+KERNEL_OVERCLOCK=1
+KERNEL_CLEAN_BUILD=1
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
 
@@ -111,7 +110,7 @@ elif [ "$KERNEL_NAME" == "1" ];
 		KERNEL_SCHED="EAS"
 		if [ "$KERNEL_STATE" == "0" ];
 			then
-				KERNEL_BRANCH="staging/kizuna"
+				KERNEL_BRANCH="staging/luna-reset-4"
 		elif [ "$KERNEL_STATE" == "1" ];
 			then
 				KERNEL_BRANCH="kizuna"
@@ -171,7 +170,7 @@ function lave_init() {
 
 # Define Kernel Scheduler
 KERNEL_SCHED="EAS"
-KERNEL_BRANCH="staging/exfat"
+KERNEL_BRANCH="fusion-nodebug"
 
 # Define Build Host
 export KBUILD_BUILD_USER=alanndz-nicklas373
@@ -206,12 +205,12 @@ KERNEL_ALT="fusion"
 if [ "$KERNEL_STATE" == "1" ];
 	then
 		KERNEL_RELEASE="Stable"
-		KERNEL_RELEASE_NAME="Water Edge"
-		KERNEL_VERSION="r11"
+		KERNEL_RELEASE_NAME="Prinzessin der Verurteilung"
+		KERNEL_VERSION="r12"
 elif [ "$KERNEL_STATE" == "0" ];
 	then
 		KERNEL_RELEASE="BETA"
-		KERNEL_RELEASE_NAME="Unknown"
+		KERNEL_RELEASE_NAME="Prinzessin der Verurteilung"
 		KERNEL_VERSION="r12"
 fi
 
@@ -225,26 +224,14 @@ function add_init() {
 KERNEL_SUFFIX="Kernel"
 KERNEL_DATE="$(date +%Y%m%d-%H%M)"
 
-# Declare Android Version
-if [ "$KERNEL_AND_VER" == "0" ];
+if [ "$KERNEL_AVR" == "0" ];
 	then
-		KERNEL_ANDROID_VER="9"
-		KERNEL_TAG="P"
-elif [ "$KERNEL_AND_VER" == "1" ];
+		KERNEL_ANDROID_VER="10"
+		KERNEL_TAG="Q"
+elif [ "$KERNEL_AVR" == "1" ];
 	then
-		if [ "$KERNEL_AVR" == "0" ];
-			then
-				KERNEL_ANDROID_VER="10"
-				KERNEL_TAG="Q"
-		elif [ "$KERNEL_AVR" == "1" ];
-			then
-				KERNEL_ANDROID_VER="11"
-				KERNEL_TAG="R"
-		fi
-elif [ "$KERNEL_AND_VER" == "2" ];
-	then
-		KERNEL_ANDROID_VER="9-10"
-		KERNEL_TAG="P-Q"
+		KERNEL_ANDROID_VER="11"
+		KERNEL_TAG="R"
 fi
 
 # Declare Telegram File Environment
@@ -253,40 +240,30 @@ export TELEGRAM_SUCCESS="CAACAgEAAx0CSp9MtQABBEjFX9VtGvPTMhgokFvqQLFDvYDqbgIAAqk
 export TELEGRAM_FAIL="CAACAgEAAx0CSp9MtQABBEjCX9Vs9JSeG9aAsei2MzYTIfWdOMMAAsYAA9pAgEVorUReGk7A2h4E"
 }
 
-# Cloning Clang
 function clang_init() {
 
-if [ "$KERNEL_GCC" == "0" ];
+# Declare clang name as one variable
+if [ "$KERNEL_CLANG" == "0" ];
 	then
-		if [ "$KERNEL_CLANG" == "0" ];
-			then
-				# Clang environment
-				export CLANG_PATH=/build/compiler/proton/bin
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="/build/compiler/proton/bin/../lib:$PATH"
-		fi
-elif [ "$KERNEL_GCC" == "1" ];
+		CLANG_NAME="proton"
+elif [ "$KERNEL_CLANG" == "1" ];
 	then
-		if [ "$KERNEL_CLANG" == "1" ];
-			then
-				# Clang environment
-				export CLANG_PATH=/build/compiler/aosp-clang/bin
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="/build/compiler/aosp-clang/bin/../lib:$PATH"
-		elif [ "$KERNEL_CLANG" == "2" ];
-			then
-				# Clang environment
-				export CLANG_PATH=/build/compiler/sdclang-12/bin
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="/build/compiler/sdclang-12/bin/../lib:$PATH"
-		elif [ "$KERNEL_CLANG" == "3" ];
-			then
-				# Clang environment
-				export CLANG_PATH=/build/compiler/sdclang-10/bin
-				export PATH=${CLANG_PATH}:${PATH}
-				export LD_LIBRARY_PATH="/build/compiler/sdclang-10/bin/../lib:$PATH"
-		fi
+		CLANG_NAME="aosp-clang"
+elif [ "$KERNEL_CLANG" == "2" ];
+	then
+		CLANG_NAME="sdclang-12"
+elif [ "$KERNEL_CLANG" == "3" ];
+	then
+		CLANG_NAME="sdclang-10"
+fi
 
+# Clang environment
+export CLANG_PATH=/build/compiler/${CLANG_NAME}/bin
+export PATH=${CLANG_PATH}:${PATH}
+export LD_LIBRARY_PATH="/build/compiler/${CLANG_NAME}/bin/../lib:$PATH"
+
+if [ "$KERNEL_GCC" == "1" ];
+	then
 		# GCC environment
 		export CROSS_COMPILE=/build/compiler/gcc_4.9_64/arm64/bin/aarch64-linux-android-
 		export CROSS_COMPILE_ARM32=/build/compiler/gcc_4.9/arm/bin/arm-linux-androideabi-
@@ -295,6 +272,7 @@ fi
 
 # Declare Machine Builder
 function builder_init() {
+rm /build/nicklas/builder
 cat /proc/version > /build/nicklas/builder
 TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
 }
@@ -455,7 +433,7 @@ elif [ "$KERNEL_CLANG" == "3" ];
 	then
 		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
-if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
+if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
@@ -473,7 +451,7 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 				CLANG_TRIPLE=aarch64-linux-gnu- \
 				CROSS_COMPILE=aarch64-linux-gnu- \
 				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
-elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
+elif [ "$KERNEL_CLANG" == "3" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
@@ -555,7 +533,7 @@ elif [ "$KERNEL_CLANG" == "3" ];
 		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
 	PATH="$CLANG_PATH"
-if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
+if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ];
 	then
 		make -j$(nproc --all) O=out \
 					CC=clang \
@@ -572,7 +550,7 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 					CLANG_TRIPLE=aarch64-linux-gnu- \
 					CROSS_COMPILE=aarch64-linux-gnu- \
 					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
-elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
+elif [ "$KERNEL_CLANG" == "3" ];
 	then
 		make -j$(nproc --all) O=out \
 					CC=clang \
