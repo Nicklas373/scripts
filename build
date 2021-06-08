@@ -12,7 +12,7 @@
 source "/build/nicklas/scripts/telegram"
 source "/build/nicklas/scripts/hash"
 
-# Script Revision = 20210607
+# Script Revision = 20210608
 
 # Build Information
 #
@@ -32,7 +32,7 @@ source "/build/nicklas/scripts/hash"
 # 0 = Mido || 1 = Lavender
 #
 # Kernel Clang Compiler
-# 0 = Proton Clang 13 || 1 = AOSP Clang || 2 = SDCLANG 12.0 || 3 = SDCLANG 10.0
+# 0 = Proton Clang 13 || 1 = AOSP Clang || 2 = SDCLANG 12.1 || 3 = SDCLANG 10.0
 #
 # Kernel GCC Compiler (Compat VDSO (Extend with Clang)
 # 0 = GCC 4.9 (Non-Elf)
@@ -53,17 +53,17 @@ source "/build/nicklas/scripts/hash"
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=2
-KERNEL_SCHED=1
+KERNEL_NAME=0
+KERNEL_SCHED=0
 KERNEL_STATE=0
-KERNEL_AVR=1
+KERNEL_AVR=0
 KERNEL_CODENAME=1
-KERNEL_CLANG=2
-KERNEL_GCC=1
-KERNEL_OVERCLOCK=1
+KERNEL_CLANG=0
+KERNEL_GCC=0
+KERNEL_OVERCLOCK=0
 KERNEL_CLEAN_BUILD=1
-KERNEL_NEW_CAM=0
-KERNEL_LAVENDER_TS_COMMON=0
+KERNEL_NEW_CAM=1
+KERNEL_LAVENDER_TS_COMMON=1
 
 # Environment init
 function env_init() {
@@ -81,19 +81,28 @@ elif [ "$KERNEL_CLEAN_BUILD" == "1" ];
 		clean="clean"
 fi
 
+# Set Global Kernel Environment
+ANYKERNEL="/build/nicklas/AnyKernel3"
+KERNEL_TEMP="/build/nicklas/TEMP"
+KERNEL_SCHED="EAS"
 }
 
 # Mido init
 function mido_init() {
 
+# Define Kernel Device Specific Environment
+KERNEL_CAF_TAG="LA.UM.9.6.2.r1-04600-89xx.0"
+KERNEL="/build/kernel/msm-4.9"
+IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
+
+# Set Build Host
+export KBUILD_BUILD_USER=Hana
+export KBUILD_BUILD_HOST=Kizuna
+
 # Clone source for specific kernel name
 if [ "$KERNEL_NAME" == "0" ];
 	then
-		# Define Kernel Specific Tag
-		KERNEL_CAF_TAG="LA.UM.9.6.2.r1-04600-89xx.0"
-
-		# Define Kernel Specific Environment
-		KERNEL_SCHED="EAS"
+		# Define Kernel Name Specific Environment
 		KERNEL_BRANCH="lineage-17.1"
 		KERNEL_REV="r12"
 		KERNEL_REL="CAF"
@@ -103,11 +112,7 @@ if [ "$KERNEL_NAME" == "0" ];
 		ANYKERNEL_BRANCH="caf/mido-4.9"
 elif [ "$KERNEL_NAME" == "1" ];
 	then
-		# Define Kernel Specific Tag
-		KERNEL_CAF_TAG="LA.UM.9.6.2.r1-04600-89xx.0"
-
-		# Define Kernel Specific Environment
-		KERNEL_SCHED="EAS"
+		# Define Kernel Name Specific Environment
 		if [ "$KERNEL_STATE" == "0" ];
 			then
 				KERNEL_BRANCH="staging/luna-reset-4"
@@ -123,11 +128,6 @@ elif [ "$KERNEL_NAME" == "1" ];
 		ANYKERNEL_BRANCH="caf/mido-kizuna-4.9"
 fi
 
-# Define Global Environment for Mido
-ANYKERNEL="/build/nicklas/AnyKernel3"
-IMAGE="/build/kernel/msm-4.9/out/arch/arm64/boot/Image.gz-dtb"
-KERNEL="/build/kernel/msm-4.9"
-KERNEL_TEMP="/build/nicklas/TEMP"
 if [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
 		KERNEL_CLOCK="OC"
@@ -138,13 +138,6 @@ else
 	KERNEL_CLK_STR="Default"
 	KERNEL_DEVICE=""
 fi
-CODENAME="mido"
-KERNEL_CODE="Mido"
-TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
-
-# Set Build Host
-export KBUILD_BUILD_USER=Hana
-export KBUILD_BUILD_HOST=Kizuna
 
 # Define Kernel Release State
 if [ "$KERNEL_STATE" == "1" ];
@@ -156,6 +149,8 @@ elif [ "$KERNEL_STATE" == "0" ];
 fi
 
 # Define Specific Telegram Environment
+TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"
+
 if [ "$KERNEL_STATE" == "1" ];
 	then
 		TELEGRAM_GROUP_ID=${telegram_group_official_mido_id}
@@ -169,20 +164,19 @@ fi
 function lave_init() {
 
 # Define Kernel Scheduler
-KERNEL_SCHED="EAS"
 KERNEL_BRANCH="fusion-nodebug"
 
 # Define Build Host
 export KBUILD_BUILD_USER=alanndz-nicklas373
 export KBUILD_BUILD_HOST=fusion_lavender-Dev
 
+# Define Kernel Specific Environment
 KERNEL="/build/kernel/msm-4.4"
-IMAGE="/build/kernel/msm-4.4/out/arch/arm64/boot/Image.gz-dtb"
-ANYKERNEL="/build/nicklas/AnyKernel3"
+IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
 ANYKERNEL_BRANCH="lavender"
-KERNEL_TEMP="/build/nicklas/TEMP"
 CODENAME="lavender"
 KERNEL_CODE="Lavender"
+
 if [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
 		KERNEL_CLOCK="OC"
@@ -194,7 +188,8 @@ elif [ "$KERNEL_OVERCLOCK" == "0" ];
 		KERNEL_CLK_STR="Default"
                 KERNEL_DEVICE=""
 fi
-TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
+
+# Define Kernel Name Specific Environment
 KERNEL_REV="r12"
 KERNEL_HASH=${FUSION_LAVENDER_HASH}
 KERNEL_CAF_TAG="LA.UM.8.2.r2-04400-sdm660.0"
@@ -214,6 +209,8 @@ elif [ "$KERNEL_STATE" == "0" ];
 		KERNEL_VERSION="r12"
 fi
 
+# Define Telegram Specific Environment
+TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
 TELEGRAM_GROUP_ID=${telegram_group_dev_id}
 }
 
@@ -241,7 +238,6 @@ export TELEGRAM_FAIL="CAACAgEAAx0CSp9MtQABBEjCX9Vs9JSeG9aAsei2MzYTIfWdOMMAAsYAA9
 }
 
 function clang_init() {
-
 # Declare clang name as one variable
 if [ "$KERNEL_CLANG" == "0" ];
 	then
@@ -422,18 +418,12 @@ fi
 	make ${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="/build/compiler/proton/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "1" ];
+		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:${PATH}"
+elif [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="/build/compiler/aosp-clang/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "2" ];
-	then
-		CLANG_PATH="/build/compiler/sdclang-12/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "3" ];
-	then
-		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
-if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ];
+if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
@@ -451,7 +441,7 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG"
 				CLANG_TRIPLE=aarch64-linux-gnu- \
 				CROSS_COMPILE=aarch64-linux-gnu- \
 				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
-elif [ "$KERNEL_CLANG" == "3" ];
+elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
@@ -521,19 +511,13 @@ fi
 	make ${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="/build/compiler/proton/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "1" ];
+		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:${PATH}"
+elif [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="/build/compiler/aosp-clang/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "2" ];
-	then
-		CLANG_PATH="/build/compiler/sdclang-12/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
-elif [ "$KERNEL_CLANG" == "3" ];
-	then
-		CLANG_PATH="/build/compiler/sdclang-10/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
 fi
 	PATH="$CLANG_PATH"
-if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ];
+if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 	then
 		make -j$(nproc --all) O=out \
 					CC=clang \
@@ -550,7 +534,7 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG"
 					CLANG_TRIPLE=aarch64-linux-gnu- \
 					CROSS_COMPILE=aarch64-linux-gnu- \
 					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
-elif [ "$KERNEL_CLANG" == "3" ];
+elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
 		make -j$(nproc --all) O=out \
 					CC=clang \
