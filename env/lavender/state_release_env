@@ -1,0 +1,5 @@
+#!/bin/bash
+
+KERNEL_RELEASE="Stable"
+KERNEL_RELEASE_NAME="Prinzessin der Verurteilung"
+KERNEL_VERSION="r12"

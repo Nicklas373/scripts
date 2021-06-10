@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Set CPU Clock State
+KERNEL_CLOCK="OC"
+KERNEL_CLK_STR="Overclock"
+KERNEL_DEVICE="CPU"

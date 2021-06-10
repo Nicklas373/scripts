@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set Kernel Release State
+KERNEL_RELEASE="BETA"
+TELEGRAM_GROUP_ID=${telegram_group_dev_id}

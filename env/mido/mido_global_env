@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Set Build Host
+export KBUILD_BUILD_USER=Hana
+export KBUILD_BUILD_HOST=Kizuna
+
+# Set Specific Kernel Device Specific Environment (Mido)
+KERNEL_CAF_TAG="LA.UM.9.6.2.r1-04600-89xx.0"
+KERNEL="/build/kernel/msm-4.9"
+CODENAME="mido"
+KERNEL_CODE="Mido"
+IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
+TELEGRAM_DEVICE="Xiaomi Redmi Note 4x"

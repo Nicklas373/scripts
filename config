@@ -1,13 +1,15 @@
 #!/bin/bash
 #
-# HANA-CI Configuration Build Script || For Local Environment
+# HANA-CI Configuration Build Script || For VPS / Cloud Server / Local
 #
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
 # Copyright 2021, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Begin decision
+# Script Revision = 20210610
+
+# Begin configuration
 function init() {
 echo ""
 echo "Which devices that you want to compile ?"

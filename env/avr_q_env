@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set Android 10 Environment
+KERNEL_ANDROID_VER="10"
+KERNEL_TAG="Q"

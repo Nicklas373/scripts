@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set Android 11 Environment
+KERNEL_ANDROID_VER="11"
+KERNEL_TAG="R"

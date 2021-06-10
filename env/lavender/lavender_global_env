@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Set Build Host
+export KBUILD_BUILD_USER=alanndz-nicklas373
+export KBUILD_BUILD_HOST=fusion_lavender-Dev
+
+# Set Kernel Specific Environment (Fusion-Lavender)
+KERNEL="/build/kernel/msm-4.4"
+IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
+ANYKERNEL_BRANCH="lavender"
+CODENAME="lavender"
+KERNEL_CODE="Lavender"
+KERNEL_BRANCH="fusion-nodebug"
+KERNEL_REV="r12"
+KERNEL_HASH=${FUSION_LAVENDER_HASH}
+KERNEL_CAF_TAG="LA.UM.8.2.r2-04400-sdm660.0"
+KERNEL_REL="Fusion"
+KERNEL_ALT="fusion"
+TELEGRAM_DEVICE="Xiaomi Redmi Note 7"
+TELEGRAM_GROUP_ID=${telegram_group_dev_id}

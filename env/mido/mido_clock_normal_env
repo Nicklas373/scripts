@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Set CPU Clock State
+KERNEL_CLOCK=""
+KERNEL_CLK_STR="Default"
+KERNEL_DEVICE=""
