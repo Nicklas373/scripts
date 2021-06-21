@@ -1,0 +1,3 @@
+#!/bin/bash
+KERNEL_BOT="Circle-CI"
+KERNEL_CI_DIR="${pwd}"

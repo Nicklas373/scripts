@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Set Kernel Release State
+KERNEL_RELEASE="Stable"

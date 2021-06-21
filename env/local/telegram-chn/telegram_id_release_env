@@ -1,5 +1,4 @@
 #!/bin/bash
 
-# Set Kernel Release State
-KERNEL_RELEASE="Stable"
+# Set Telegram Group ID
 TELEGRAM_GROUP_ID=${telegram_group_official_mido_id}

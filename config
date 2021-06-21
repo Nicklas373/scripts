@@ -1,16 +1,68 @@
 #!/bin/bash
 #
-# HANA-CI Configuration Build Script || For VPS / Cloud Server / Local
+# HANA-CI Configuration Build Script || For VPS / Cloud Server / Local / Continous Integration
 #
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
 # Copyright 2021, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Script Revision = 20210610
+# Script Revision = 20210622
 
 # Begin configuration
 function init() {
+echo "Which service that you want to use ?"
+echo ""
+echo "1. Continous Integration"
+echo "2. Cloud Server"
+echo ""
+echo "NOTE: Write number only!"
+read -s srv
+
+if [ "$srv" == "1" ];
+	then
+		srv_init="1"
+		services="Continous Integration"
+
+		# Run CI step
+		kci_srv
+elif [ "$srv" == "2" ];
+	then
+		srv_init="2"
+		services="Cloud Server"
+		bot="Cloud Server"
+
+		# Run Local step
+		kdev
+fi
+}
+
+function kci_srv() {
+echo "Which CI services that you want to use ?"
+echo ""
+echo "1. Circle-CI"
+echo "2. Semaphore-CI"
+echo "3. Drone-CI"
+echo ""
+echo "NOTE: Write number only!"
+read -s decision
+
+if [ "$decision" == "1" ];
+	then
+		bot="Circle-CI"
+elif [ "$decision" == "2" ];
+	then
+		bot="Semaphore-CI"
+elif [ "$decision" == "3" ];
+	then
+		bot="Drone-CI"
+fi
+
+# Run next step
+kdev
+}
+
+function kdev() {
 echo ""
 echo "Which devices that you want to compile ?"
 echo ""
@@ -200,8 +252,16 @@ elif [ "$clang" == "4" ];
 		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
 fi
 
-# Run next step
-clean
+if [ "$srv_init" == "1" ];
+	then
+		# Run next step
+		build="clean"
+		main
+elif [ "$srv_init" == "2" ];
+	then
+		# Run next step
+		clean
+fi
 }
 
 function clean() {
@@ -231,25 +291,27 @@ main
 function main() {
 # Show user option
 echo ""
-echo "========================================="
-echo "| Your selection			|"
-echo "|					|"
-echo "| Devices	: $devices	|"
-echo "| Kernel	: $name		|"
-echo "| Release	: $release			|"
-echo "| Build		: $build			|"
-echo "| Android Ver	: $avr_str		|"
-echo "| Ext Clang	: $ext_clang	|"
-echo "| CPU Overclock	: $clock			|"
-echo "| GPU Overclock	: $gpu_clock			|"
-echo "|					|"
-echo "| is this right option ?		|"
-echo "|					|"
-echo "| 1. Yes				|"
-echo "| 2. No					|"
-echo "|					|"
-echo "| NOTE: Write number only!		|"
-echo "========================================="
+echo "================================================================="
+echo "| Your selection						|"
+echo "|								|"
+echo "| Machine Services	: $services			|"
+echo "| CI Services		: $bot				|"
+echo "| Devices		: $devices			|"
+echo "| Kernel		: $name				|"
+echo "| Release		: $release					|"
+echo "| Build			: $build					|"
+echo "| Android Ver		: $avr_str				|"
+echo "| Ext Clang		: $ext_clang	|"
+echo "| CPU Overclock		: $clock					|"
+echo "| GPU Overclock		: $gpu_clock					|"
+echo "|								|"
+echo "| is this right option ?					|"
+echo "|								|"
+echo "| 1. Yes							|"
+echo "| 2. No								|"
+echo "|								|"
+echo "| NOTE: Write number only!					|"
+echo "================================================================="
 read -s user
 
 # Configuring CI
@@ -262,35 +324,35 @@ elif [ "$user" == "1" ];
 		echo "Configuring Build Script"
 		if [ "$kname" == "1" ];
 			then
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
 		elif [ "$kname" == "2" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
 		elif [ "$kname" == "3" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
 		fi
 		if [ "$avr" == "0" ];
 			then
-				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=0/g' /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=0/g' /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=0/g' ~/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=0/g' ~/scripts/build
 		elif [ "$avr" == "1" ];
 			then
-				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' ~/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' ~/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ~/scripts/build
 		elif [ "$kdev" == "2" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/scripts/build
 				echo ""
 				echo "Want to use custom cam ?"
 				echo "1. yes"
@@ -299,97 +361,149 @@ elif [ "$user" == "1" ];
 				read -s cam
 				if [ "$cam" == "1" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  /build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ~/scripts/build
 				elif [ "$cam" == "2" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  /build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ~/scripts/build
 				fi
 		fi
 		if [ "$krelease" == "1" ];
 			then
-				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ~/scripts/build
 		elif [ "$krelease" == "2" ];
 			then
-				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ~/scripts/build
 		fi
 		if [ "$comp" == "1" ];
 			then
-				sed -i -e 's/KERNEL_GCC=1/KERNEL_GCC=0/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_GCC=1/KERNEL_GCC=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  ~/scripts/build
 		elif [ "$comp" == "2" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  ~/scripts/build
 		elif [ "$comp" == "3" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  ~/scripts/build
 		elif [ "$comp" == "4" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  /build/nicklas/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  /build/nicklas/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  ~/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
 				if [ "$overclock" == "0" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   /build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/scripts/build
 				elif [ "$overclock" == "1" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   /build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/scripts/build
 				fi
 		elif [ "$kdev" == "2" ];
 			then
 				if [ "$overclock" == "0" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   /build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/scripts/build
 				elif [ "$overclock" == "1" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'	/build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'	~/scripts/build
 				fi
 
 				if [ "$ts_common" == "1" ];
 					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	/build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	~/scripts/build
 				elif [ "$ts_common" == "2" ];
 					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	/build/nicklas/scripts/build
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	~/scripts/build
 				fi
 		fi
-		if [ "$clean" == "1" ];
+		if [ "$srv_init" == "1" ];
 			then
-				sed -i -e 's/KERNEL_CLEAN_BUILD=0/KERNEL_CLEAN_BUILD=1/g' /build/nicklas/scripts/build
-		elif [ "$clean" == "2" ];
+				echo "Configuring CI Script"
+				if [ "$decision" == "1" ];
+					then
+						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=1/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=1/g'  ~/scripts/build
+				elif [ "$decision" == "2" ];
+					then
+						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=2/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=2/g'  ~/scripts/build
+				elif [ "$decision" == "3" ];
+					then
+						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=0/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=0/g'  ~/scripts/build
+				fi
+
+				echo "Triggering CI"
+
+				# Trigger script earlier
+				trigger_script
+
+				if [ "$decision" == "1" ];
+					then
+						echo "Push to Circle-CI"
+						cd ~/build_kernel
+				elif [ "$decision" == "2" ];
+					then
+						echo "Push to Semaphore-CI"
+						cd ~/Semaphore-CI
+				elif [ "$decision" == "3" ];
+					then
+						echo "Push to Drone-CI"
+						cd ~/Drone-CI
+				fi
+
+				# Trigger CI
+				trigger_ci
+		elif [ "$srv_init" == "2" ];
 			then
-				sed -i -e 's/KERNEL_CLEAN_BUILD=1/KERNEL_CLEAN_BUILD=0/g' /build/nicklas/scripts/build
+				if [ "$clean" == "1" ];
+					then
+						sed -i -e 's/KERNEL_CLEAN_BUILD=0/KERNEL_CLEAN_BUILD=1/g' ~/scripts/build
+				elif [ "$clean" == "2" ];
+					then
+						sed -i -e 's/KERNEL_CLEAN_BUILD=1/KERNEL_CLEAN_BUILD=0/g' ~/scripts/build
+				fi
+
+				# Build decision
+				echo " "
+				echo "Want to compile now ? "
+				echo ""
+				echo "1. Yes"
+				echo "2. No"
+				read -s build
+
+				# Running build script
+				if [ "$build" == "1" ];
+					then
+						bash build
+				elif [ "$build" == "2" ];
+					then
+						echo "See ya"
+						exit 1
+				fi
 		fi
 fi
+}
 
-# Build decision
-echo " "
-echo "Want to compile now ? "
-echo ""
-echo "1. Yes"
-echo "2. No"
-read -s build
+function trigger_script() {
+git add .
+git commit -m "ci: trigger: Automated Trigger CI" -s
+git push origin script
+}
 
-# Running build script
-if [ "$build" == "1" ];
-	then
-		bash build
-elif [ "$build" == "2" ];
-	then
-		echo "See ya"
-		exit 1
-fi
+function trigger_ci() {
+git commit --allow-empty -am "ci: trigger: Automated Trigger CI" -s
+git push -f
 }
 
 # run main

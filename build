@@ -1,6 +1,6 @@
 #!bin/bash
 #
-# HANA-CI Kernel Build Script || For VPS / Cloud Server / Local
+# HANA-CI Kernel Build Script || For VPS / Cloud Server / Local / For Continous Integration
 #
 # Copyright 2019, Ahmad Thoriq Najahi "Najahiii" <najahiii@outlook.co.id>
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
@@ -8,7 +8,7 @@
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Script Revision = 20210610
+# Script Revision = 20210622
 
 # Build Information
 #
@@ -16,7 +16,7 @@
 # 0 = CAF (Stock Based Kernel) || 1 = Kizuna || 2 Fusion (Co-operate with @alanndz)
 #
 # Kernel Scheduler
-# 0 = HMP || 1 = EAS (Option always selected as "1")
+# 0 = HMP || 1 = EAS
 #
 # Kernel State
 # 0 = BETA || 1 = Stable
@@ -32,6 +32,12 @@
 #
 # Kernel GCC Compiler (Compat VDSO (Extend with Clang)
 # 0 = GCC 4.9 (Non-Elf)
+#
+# Machine Service
+# 0 = Continous Integration || 1 = Cloud Server
+#
+# CI Service
+# 0 = Drone CI || 1 = Circle CI || 2 = Semaphore CI
 #
 # Kernel Overclock
 # 0 = Non-OC || 1 = OC
@@ -51,11 +57,13 @@
 # Declare Kernel Details
 KERNEL_NAME=0
 KERNEL_SCHED=1
-KERNEL_STATE=0
-KERNEL_AVR=1
+KERNEL_STATE=1
+KERNEL_AVR=0
 KERNEL_CODENAME=0
-KERNEL_CLANG=2
-KERNEL_GCC=1
+KERNEL_CLANG=0
+KERNEL_GCC=0
+KERNEL_MACHINE_ENV=0
+KERNEL_CI_SERVICE=1
 KERNEL_OVERCLOCK=0
 KERNEL_CLEAN_BUILD=1
 KERNEL_NEW_CAM=0
@@ -64,21 +72,68 @@ KERNEL_LAVENDER_TS_COMMON=1
 # Environment init
 function env_init() {
 
-# Set Build Status
-if [ "$KERNEL_CLEAN_BUILD" == "0" ];
+# Set Machine Env
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
 	then
-		clean="dirty"
-elif [ "$KERNEL_CLEAN_BUILD" == "1" ];
-	then
+		# Set CI Service
+		source "scripts/env/ci/ci_env"
+
+		if [ "$KERNEL_CI_SERVICE" == "0" ];
+			then
+				source "${WORK_DIR}/env/ci/ci-sp-dir/drone_env"
+		elif [ "$KERNEL_CI_SERVICE" == "1" ];
+			then
+				source "${WORK_DIR}/env/ci/ci-sp-dir/circle_env"
+		elif [ "$KERNEL_CI_SERVICE" == "2" ];
+			then
+				source "${WORK_DIR}/env/ci/ci-sp-dir/semaphore_env"
+		fi
+
+		# Set TEMP Directory
+		mkdir TEMP
+
+		# Set Build Status
 		clean="clean"
+
+		# Set CI Token
+		if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "1" ];
+			then
+				# Import Telegram Token ID
+				source "${WORK_DIR}/env/${MCN_DIR}/token/drone-crc/token_id_env"
+
+				# Import github token
+				TOKEN=${token}
+		elif [ "$KERNEL_CI_SERVICE" == "2" ];
+			then
+				# Import Telegram Token ID
+				source "${WORK_DIR}/env/${MCN_DIR}/token/semaphore/token_id_env"
+
+				# Import github token
+				TOKEN=${git_token}
+		fi
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		# Set Build Status
+		source "build/env/local/local_env"
+
+		if [ "$KERNEL_CLEAN_BUILD" == "0" ];
+			then
+				clean="dirty"
+		elif [ "$KERNEL_CLEAN_BUILD" == "1" ];
+			then
+				clean="clean"
+		fi
+
+		# Set CI Environment
+		KERNEL_BOT="VPS"
+
+		# Import separate environment [Private env, SHOULDN'T BE UPLOADED :P]
+		source "${WORK_DIR}/env/${MCN_DIR}/telegram-chn/telegram_env"
+		source "${WORK_DIR}/env/${MCN_DIR}/telegram-chn/hash_env"
 fi
 
-# Import separate environment
-source "/build/nicklas/scripts/env/telegram/telegram_env"
-source "/build/nicklas/scripts/env/telegram/hash_env"
-
 # Import global environment
-source "/build/nicklas/scripts/env/global_env"
+source "${WORK_DIR}/env/global_env"
 
 if [ "$KERNEL_CODENAME" == "0" ];
 	then
@@ -86,15 +141,39 @@ if [ "$KERNEL_CODENAME" == "0" ];
 		DEVICE_NAME="mido"
 
 		# Import device specific environment
-		source "/build/nicklas/scripts/env/mido/mido_global_env"
+		source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_global_env"
 
 		# Import kernel specific environment
 		if [ "$KERNEL_NAME" == "0" ];
 			then
-				source "/build/nicklas/scripts/env/mido/mido_caf_env"
+				source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_caf_env"
+
 		elif [ "$KERNEL_NAME" == "1" ];
 			then
-				source "/build/nicklas/scripts/env/mido/mido_kizuna_env"
+				source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_kizuna_env"
+		fi
+
+		# Clone specific repo if compiled using CI
+		if [ "$KERNEL_MACHINE_ENV" == "0" ];
+			then
+				source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/mido_ci_env"
+				source "${WORK_DIR}/env/${MCN_DIR}/anykernel_env"
+
+				# Detect kernel repo at first
+				if [ "$KERNEL_NAME" == "0" ];
+					then
+						CLONE_REPO="${CAF_CLONE_REPO}"
+				elif [ "$KERNEL_NAME" == "1" ];
+					then
+						CLONE_REPO="${KIZUNA_CLONE_REPO}"
+				fi
+
+				# Clone kernel repositories earlier
+				git clone --depth=1 -b ${KERNEL_BRANCH} ${CLONE_REPO} ${KERNEL}
+
+				# Cloning AnyKernel Repository
+				git clone --depth=1 -b ${ANYKERNEL_BRANCH} ${ANYKERNEL_CLONE_REPO}
+
 		fi
 elif [ "$KERNEL_CODENAME" == "1" ];
 	then
@@ -102,34 +181,79 @@ elif [ "$KERNEL_CODENAME" == "1" ];
 		DEVICE_NAME="lavender"
 
 		# Import device specific environment
-		source "/build/nicklas/scripts/env/lavender/lavender_global_env"
+		source "${WORK_DIR}/env/device/${DEVICE_NAME}/lavender_global_env"
+
+		# Clone specific repo if compiled using CI
+		if [ "$KERNEL_MACHINE_ENV" == "0" ];
+			then
+				if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
+					then
+						source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/drone-semaphore/lavender_ci_env"
+				elif [ "$KERNEL_CI_SERVICE" == "1" ];
+					then
+						source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/crc/lavender_ci_env"
+				fi
+
+				source "${WORK_DIR}/env/${MCN_DIR}/anykernel_env"
+
+				if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
+					then
+						# Clone kernel repositories earlier
+						git clone --depth=1 -b ${KERNEL_BRANCH} ${FUSION_CLONE_REPO} ${KERNEL}
+				fi
+
+				# Cloning AnyKernel Repository
+				git clone --depth=1 -b ${ANYKERNEL_BRANCH} ${ANYKERNEL_CLONE_REPO}
+
+		fi
 fi
 
 # Import kernel clock environment
 if [ "$KERNEL_OVERCLOCK" == "0" ];
 	then
-		source "/build/nicklas/scripts/env/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
+		source "${WORK_DIR}/env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
 elif [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
-		source "/build/nicklas/scripts/env/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
+		source "${WORK_DIR}/env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
 fi
 
 # Import kernel release environment
 if [ "$KERNEL_STATE" == "0" ];
 	then
-		source "/build/nicklas/scripts/env/${DEVICE_NAME}/state_beta_env"
+		STATE="beta"
 elif [ "$KERNEL_STATE" == "1" ];
 	then
-		source "/build/nicklas/scripts/env/${DEVICE_NAME}/state_release_env"
+		STATE="release"
+fi
+
+# Set kernel release environment
+source "${WORK_DIR}/env/device/${DEVICE_NAME}/state_${STATE}_env"
+
+# Import Telegram CI Notification
+if [ "$KERNEL_CI_SERVICE" == "1" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
+	then
+		CIS="crc-semaphore"
+elif [ "$KERNEL_CI_SERVICE" == "0" ];
+	then
+		CIS="drone"
+fi
+
+# Set telegram CI service
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
+	then
+		source "${WORK_DIR}/env/$MCN_DIR/telegram-chn/${CIS}/telegram_id_${STATE}_env"
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		source "${WORK_DIR}/env/$MCN_DIR/telegram-chn/telegram_id_${STATE}_env"
 fi
 
 # Import kernel android environment
 if [ "$KERNEL_AVR" == "0" ];
 	then
-		source "/build/nicklas/scripts/env/avr_q_env"
+		source "${WORK_DIR}/env/avr_q_env"
 elif [ "$KERNEL_AVR" == "1" ];
 	then
-		source "/build/nicklas/scripts/env/avr_r_env"
+		source "${WORK_DIR}/env/avr_r_env"
 fi
 
 # Define kernel clang version
@@ -148,34 +272,67 @@ elif [ "$KERNEL_CLANG" == "3" ];
 fi
 
 # Import kernel clang environment
-source "/build/nicklas/scripts/env/clang_env"
+source "${WORK_DIR}/env/${MCN_DIR}/clang_env"
 
 if [ "$KERNEL_GCC" == "1" ];
 	then
 		# Import kernel gcc environment
-		source "/build/nicklas/scripts/env/gcc_env"
+		source "${WORK_DIR}/env/${MCN_DIR}/gcc_env"
+fi
+
+# Set hybrid aliases path directory
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
+	then
+		# Declare important mixed dir
+		if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
+			then
+				KERNEL_HYB="${KERNEL_CI_DIR}/${KERNEL}"
+				KERNEL_IMAGE_HYB="${KERNEL_CI_DIR}/${IMAGE}"
+				KERNEL_AK_HYB="${KERNEL_CI_DIR}/${ANYKERNEL}"
+				KERNEL_TEMP_HYB="${KERNEL_CI_DIR}/${KERNEL_TEMP}"
+		elif [ "$KERNEL_CI_SERVICE" == "1" ];
+			then
+				KERNEL_HYB="${KERNEL}"
+				KERNEL_IMAGE_HYB="${IMAGE}"
+				KERNEL_AK_HYB="${KERNEL_CI_DIR}/${ANYKERNEL}"
+				KERNEL_TEMP_HYB="${KERNEL_CI_DIR}/${KERNEL_TEMP}"
+		fi
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		# Declare important mixed dir
+		KERNEL_HYB="${KERNEL}"
+		KERNEL_IMAGE_HYB="${KERNEL_HYB}/${IMAGE}"
+		KERNEL_AK_HYB="${KERNEL_HYB}/${ANYKERNEL}"
+		KERNEL_TEMP_HYB="${KERNEL_HYB}/${ANYKERNEL}"
 fi
 }
 
 # Declare Machine Builder
 function telegram_additional() {
-rm /build/nicklas/builder
-cat /proc/version > /build/nicklas/builder
-TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
+	then
+		cat /proc/version > builder
+		TELEGRAM_BUILDER=$(cat builder)
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		rm /build/nicklas/builder
+		cat /proc/version > /build/nicklas/builder
+		TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
+fi
 }
 
 # Declare Telegram Bot Aliases
 function telegram_init() {
-TELEGRAM_KERNEL_VER=$(cat ${KERNEL}/out/.config | grep Linux/arm64 | cut -d " " -f3)
-TELEGRAM_UTS_VER=$(cat ${KERNEL}/out/include/generated/compile.h | grep UTS_VERSION | cut -d '"' -f2)
-TELEGRAM_COMPILER_NAME=$(cat ${KERNEL}/out/include/generated/compile.h | grep LINUX_COMPILE_BY | cut -d '"' -f2)
-TELEGRAM_COMPILER_HOST=$(cat ${KERNEL}/out/include/generated/compile.h | grep LINUX_COMPILE_HOST | cut -d '"' -f2)
-TELEGRAM_TOOLCHAIN_VER=$(cat ${KERNEL}/out/include/generated/compile.h | grep LINUX_COMPILER | cut -d '"' -f2)
+TELEGRAM_KERNEL_VER=$(cat ${KERNEL_HYB}/out/.config | grep Linux/arm64 | cut -d " " -f3)
+TELEGRAM_UTS_VER=$(cat ${KERNEL_HYB}/out/include/generated/compile.h | grep UTS_VERSION | cut -d '"' -f2)
+TELEGRAM_COMPILER_NAME=$(cat ${KERNEL_HYB}/out/include/generated/compile.h | grep LINUX_COMPILE_BY | cut -d '"' -f2)
+TELEGRAM_COMPILER_HOST=$(cat ${KERNEL_HYB}/out/include/generated/compile.h | grep LINUX_COMPILE_HOST | cut -d '"' -f2)
+TELEGRAM_TOOLCHAIN_VER=$(cat ${KERNEL_HYB}/out/include/generated/compile.h | grep LINUX_COMPILER | cut -d '"' -f2)
 }
 
 # Telegram Bot Service || Compiling Notification
 function bot_template() {
-curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendMessage -d chat_id=${TELEGRAM_GROUP_ID} -d "parse_mode=HTML" -d text="$(
+curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendMessage -d chat_id=${TELEGRAM_GROUP_ID} -d "parse_mode=HTML" -d text="$(
 	for POST in "${@}";
 		do
 			echo "${POST}"
@@ -196,6 +353,7 @@ function bot_first_compile() {
 			"<b>Device :</b><code> ${TELEGRAM_DEVICE} </code>" \
 			"<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
 			"<b>Builder :</b><code> ${TELEGRAM_BUILDER} </code>" \
+			"<b>Service :</b><code> ${KERNEL_BOT} </code>" \
 			"" \
 			" =========== Kernel Information ================" \
 			"<b>Kernel Scheduler : </b><code> ${KERNEL_SCHED} </code>" \
@@ -219,6 +377,7 @@ function bot_complete_compile() {
 			"<b>Android Version :</b><code> ${KERNEL_ANDROID_VER} </code>" \
    			"<b>Filename :</b><code> ${TELEGRAM_FILENAME}</code>" \
 			"<b>Builder :</b><code> ${TELEGRAM_BUILDER} </code>" \
+			"<b>Service :</b><code> ${KERNEL_BOT} </code>" \
 			"" \
 			"=========== Kernel Information ================" \
 			"<b>Kernel Scheduler : </b><code> ${KERNEL_SCHED} </code>" \
@@ -266,53 +425,60 @@ function bot_message() {
 
 # Telegram sticker message
 function sendStick() {
-	curl -s -X POST https://api.telegram.org/bot${telegram_bot_id}/sendSticker -d sticker="${1}" -d chat_id=${TELEGRAM_GROUP_ID} &>/dev/null
+	curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendSticker -d sticker="${1}" -d chat_id=${TELEGRAM_GROUP_ID} &>/dev/null
 }
 
 # Compile Mido Begin
 function compile_mido() {
-	cd ${KERNEL}
+	cd ${KERNEL_HYB}
 
-	# Changed to specific branch
-	git checkout ${KERNEL_BRANCH}
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		# Changed to specific branch
+		git checkout ${KERNEL_BRANCH}
+fi
 
 	bot_first_compile
-if [ "$KERNEL_CLEAN_BUILD" == "1" ];
+
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		make clean && make mrproper
-		rm -rvf out
-fi
-if [ "$KERNEL_NAME" == "0" ];
-	then
-		rm ${KERNEL}/localversion
-		echo "-perf" > ${KERNEL}/localversion
-elif [ "$KERNEL_NAME" == "1" ];
-	then
-		if [ "$KERNEL_OVERCLOCK" == "1" ];
+		if [ "$KERNEL_CLEAN_BUILD" == "1" ];
 			then
-				rm ${KERNEL}/localversion
-				echo "-キズナ-OC-r10" > ${KERNEL}/localversion
-				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-		elif [ "$KERNEL_OVERCLOCK" == "0" ];
-			then
-				rm ${KERNEL}/localversion
-				echo "-キズナ-r10" > ${KERNEL}/localversion
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
-				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/mido_defconfig
+				make clean && make mrproper
+				rm -rvf out
 		fi
 fi
-	cat ${KERNEL}/localversion
+
+if [ "$KERNEL_NAME" == "0" ];
+	then
+		rm ${KERNEL_HYB}/localversion
+		echo "-perf" > ${KERNEL_HYB}/localversion
+elif [ "$KERNEL_NAME" == "1" ];
+	then
+		rm ${KERNEL_HYB}/localversion
+		if [ "$KERNEL_OVERCLOCK" == "1" ];
+			then
+				echo "-キズナ-OC-r10" > ${KERNEL_HYB}/localversion
+				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+		elif [ "$KERNEL_OVERCLOCK" == "0" ];
+			then
+				echo "-キズナ-r10" > ${KERNEL_HYB}/localversion
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_OVERCLOCKED is not set/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/# CONFIG_MACH_XIAOMI_C6_DEFAULT is not set/CONFIG_MACH_XIAOMI_C6_DEFAULT=y/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+				sed -i -e 's/CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_C6_GPU_OVERCLOCKED is not set/g' ${KERNEL_HYB}/arch/arm64/configs/mido_defconfig
+		fi
+fi
+	cat ${KERNEL_HYB}/localversion
 	START=$(date +"%s")
-	make ${CODENAME}_defconfig O=out
+	make vendor/${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:${PATH}"
+		CLANG_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/:${CLANG_DIR}/gcc_4.9_64/arm64/bin/:${CLANG_DIR}/gcc_4.9/arm/bin/:${PATH}"
 fi
 if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 	then
@@ -331,38 +497,41 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 				HOSTAR=llvm-ar \
 				CLANG_TRIPLE=aarch64-linux-gnu- \
 				CROSS_COMPILE=aarch64-linux-gnu- \
-				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP_HYB}/compile.log
 elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
 		PATH="$CLANG_PATH" \
 		make -j$(nproc --all) O=out \
 				CC=clang \
 				CROSS_COMPILE=aarch64-linux-gnu- \
-				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP_HYB}/compile.log
 fi
-	if ! [ -a $IMAGE ];
+	if ! [ -a ${KERNEL_IMAGE_HYB} ];
 		then
 			echo "kernel not found"
 			END=$(date +"%s")
 			DIFF=$(($END - $START))
-			cd ${KERNEL}
+			cd ${KERNEL_HYB}
 			bot_build_failed
 			cd ..
 			sendStick "${TELEGRAM_FAIL}"
-			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			exit 1
 	fi
 	END=$(date +"%s")
 	DIFF=$(($END - $START))
-	cd ${KERNEL}
+	cd ${KERNEL_HYB}
 	bot_build_success
-if [ "$KERNEL_STATE" == "0" ];
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		bot_message
+		if [ "$KERNEL_STATE" == "0" ];
+			then
+				bot_message
+		fi
 fi
 	cd ..
 	sendStick "${TELEGRAM_SUCCESS}"
-	cp ${IMAGE} /build/nicklas/AnyKernel3
+	cp ${KERNEL_IMAGE_HYB} ${KERNEL_AK_HYB}
 	anykernel
 	kernel_upload
 }
@@ -370,42 +539,48 @@ fi
 # Compile Lavender Begin
 function compile_lave() {
 	START=$(date +"%s")
-	cd ${KERNEL}
-	git checkout ${KERNEL_BRANCH}
-	bot_first_compile
-if [ "$KERNEL_CLEAN_BUILD" == "1" ];
+	cd ${KERNEL_HYB}
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		make clean && make mrproper
-		rm -rvf out
+		git checkout ${KERNEL_BRANCH}
 fi
-	sed -i -e 's/CONFIG_ANDROID_NLMK=y/# CONFIG_ANDROID_NLMK is not set/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+	bot_first_compile
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		if [ "$KERNEL_CLEAN_BUILD" == "1" ];
+			then
+				make clean && make mrproper
+				rm -rvf out
+		fi
+fi
+	sed -i -e 's/CONFIG_ANDROID_NLMK=y/# CONFIG_ANDROID_NLMK is not set/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 if [ "$KERNEL_LAVENDER_TS_COMMON" == "0" ];
 	then
 		echo "Disable TS Common Nodes"
-		sed -i -e 's/CONFIG_TOUCHSCREEN_COMMON=y/# CONFIG_TOUCHSCREEN_COMMON is not set/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/CONFIG_TOUCHSCREEN_COMMON=y/# CONFIG_TOUCHSCREEN_COMMON is not set/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 elif [ "$KERNEL_LAVENDER_TS_COMMON" == "1" ];
 	then
 		echo "Enable TS Common Nodes"
-		sed -i -e 's/# CONFIG_TOUCHSCREEN_COMMON is not set/CONFIG_TOUCHSCREEN_COMMON=y/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/# CONFIG_TOUCHSCREEN_COMMON is not set/CONFIG_TOUCHSCREEN_COMMON=y/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 fi
 if [ "$KERNEL_OVERCLOCK" == "0" ];
 	then
 		echo "Disable CPU Overclock"
-		sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT is not set/CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT=y/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
-		sed -i -e 's/CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED is not set/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT is not set/CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT=y/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED=y/# CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED is not set/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 elif [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
 		echo "Enable CPU Overclock"
-		sed -i -e 's/CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT=y/# CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT is not set/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
-		sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED=y/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT=y/# CONFIG_MACH_XIAOMI_LAVENDER_DEFAULT is not set/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
+		sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED is not set/CONFIG_MACH_XIAOMI_LAVENDER_OVERCLOCKED=y/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 fi
-	make ${CODENAME}_defconfig O=out
+	make vendor/${CODENAME}_defconfig O=out
 if [ "$KERNEL_CLANG" == "0" ];
 	then
-		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:${PATH}"
+		CLANG_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/:${PATH}"
 elif [ "$KERNEL_CLANG" == "1" ] || [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
-		CLANG_PATH="/build/compiler/${CLANG_NAME}/bin/:/build/compiler/gcc_4.9_64/arm64/bin/:/build/compiler/gcc_4.9/arm/bin/:${PATH}"
+		CLANG_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/:${CLANG_DIR}/gcc_4.9_64/arm64/bin/:${CLANG_DIR}/gcc_4.9/arm/bin/:${PATH}"
 fi
 	PATH="$CLANG_PATH"
 if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
@@ -424,15 +599,15 @@ if [ "$KERNEL_CLANG" == "0" ] || [ "$KERNEL_CLANG" == "1" ];
 					HOSTAR=llvm-ar \
 					CLANG_TRIPLE=aarch64-linux-gnu- \
 					CROSS_COMPILE=aarch64-linux-gnu- \
-					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
+					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP_HYB}/compile.log
 elif [ "$KERNEL_CLANG" == "2" ] || [ "$KERNEL_CLANG" == "3" ];
 	then
 		make -j$(nproc --all) O=out \
 					CC=clang \
 					CROSS_COMPILE=aarch64-linux-gnu- \
-					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP}/compile.log
+					CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee ${KERNEL_TEMP_HYB}/compile.log
 fi
-	if ! [ -a $IMAGE ];
+	if ! [ -a ${KERNEL_IMAGE_HYB} ];
 		then
 			echo "kernel not found"
 			END=$(date +"%s")
@@ -444,12 +619,18 @@ fi
 	fi
 	END=$(date +"%s")
 	DIFF=$(($END - $START))
-	cd ${KERNEL}
+	cd ${KERNEL_HYB}
 	bot_build_success
-	bot_message
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		if [ "$KERNEL_STATE" == "0" ];
+			then
+				bot_message
+		fi
+fi
 	sendStick "${TELEGRAM_SUCCESS}"
 	cd ..
-	cp ${IMAGE} ${ANYKERNEL}
+	cp ${KERNEL_IMAGE_HYB} ${KERNEL_AK_HYB}
 	anykernel
 	kernel_upload
 	if [ "$KERNEL_NEW_CAM" == "0" ];
@@ -470,10 +651,10 @@ fi
 # Camera patch
 function lave_new_cam() {
 
-cd ${KERNEL}
+cd ${KERNEL_HYB}
 
 echo "Enable New Cam Drivers"
-sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_NEW_CAM is not set/CONFIG_MACH_XIAOMI_LAVENDER_NEW_CAM=y/g' ${KERNEL}/arch/arm64/configs/lavender_defconfig
+sed -i -e 's/# CONFIG_MACH_XIAOMI_LAVENDER_NEW_CAM is not set/CONFIG_MACH_XIAOMI_LAVENDER_NEW_CAM=y/g' ${KERNEL_HYB}/arch/arm64/configs/lavender_defconfig
 
 # Declare specified kernel name for pie patch
 TELEGRAM_FILENAME="${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}-New_CAM.zip"
@@ -487,26 +668,30 @@ compile_lave
 
 # AnyKernel
 function anykernel() {
-	cd ${ANYKERNEL}
+	cd ${KERNEL_AK_HYB}
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		git checkout ${ANYKERNEL_BRANCH}
+fi
 
-	git checkout ${ANYKERNEL_BRANCH}
 	make -j4
 
 	if [ "$KERNEL_OVERCLOCK" == "0" ];
 		then
-			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
+			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
 	elif [ "$KERNEL_CODENAME" == "1" ] && [ "$KERNEL_NEW_CAM" == "1" ];
 		then
-			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}-New_CAM.zip
+			mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}-New_CAM.zip
 	else
-		mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
+		mv ${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-signed.zip ${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip
 	fi
 }
 
 # Upload Kernel
 function kernel_upload() {
-	cd ${KERNEL}
+	cd ${KERNEL_HYB}
 	bot_complete_compile
+
 	if [ "$KERNEL_STATE" == "0" ];
 		then
 			# Upload kernel file
@@ -514,18 +699,20 @@ function kernel_upload() {
 
 			if [ "$KERNEL_OVERCLOCK" == "0" ];
 				then
-					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			else
-				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			fi
 
 				echo "Upload log..."
-				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/compile.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/compile.log"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 
-			echo "Upload git log.."
-			git log ${KERNEL_HASH}^..HEAD --format="format:%C(auto)%h | %s | Author: %C(green)%aN%Creset | %cD" > ${KERNEL_TEMP}/git.log
-			curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/git.log"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
-
+			if [ "$KERNEL_MACHINE_ENV" == "1" ];
+				then
+					echo "Upload git log.."
+					git log ${KERNEL_HASH}^..HEAD --format="format:%C(auto)%h | %s | Author: %C(green)%aN%Creset | %cD" > ${KERNEL_TEMP_HYB}/git.log
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/git.log"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
+			fi
 	elif [ "$KERNEL_STATE" == "1" ];
 		then
 			# Upload kernel file
@@ -533,32 +720,32 @@ function kernel_upload() {
 
 			if [ "$KERNEL_OVERCLOCK" == "0" ];
 				then
-					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			elif [ "$KERNEL_CODENAME" == "1" ] && [ "$KERNEL_NEW_CAM" == "1" ];
 				then
-					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}-New_CAM.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+					curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}-New_CAM.zip"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			else
-				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${telegram_bot_id}/sendDocument
+				curl -F chat_id=${TELEGRAM_GROUP_ID} -F document="@${KERNEL_TEMP_HYB}/${KERNEL_REL}-${KERNEL_SUFFIX}-${KERNEL_CODE}-${KERNEL_CLOCK}-${KERNEL_REV}-${KERNEL_SCHED}-${KERNEL_TAG}-${KERNEL_DATE}.zip"  https://api.telegram.org/bot${TELEGRAM_BOT_ID}/sendDocument
 			fi
 	fi
 }
 
 function cleanup() {
-	rm -rvf ${ANYKERNEL}/Image.gz-dtb
-	rm -rvf ${KERNEL_TEMP}/*.zip
-	rm -rvf ${KERNEL_TEMP}/*.log
-	rm ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
+	rm -rvf ${KERNEL_AK_HYB}/Image.gz-dtb
+	rm -rvf ${KERNEL_TEMP_HYB}/*.zip
+	rm -rvf ${KERNEL_TEMP_HYB}/*.log
+	rm ${KERNEL_HYB}/arch/arm64/configs/${CODENAME}_defconfig
 if [ "$KERNEL_CODENAME" == "0" ];
 	then
-		rm ${KERNEL}/localversion
+		rm ${KERNEL_HYB}/localversion
 fi
 	cp /build/nicklas/backup/${CODENAME}/${KERNEL_ALT}/${CODENAME}_defconfig ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
 if [ "$KERNEL_NAME" == "0" ];
 	then
-		echo "-perf" > ${KERNEL}/localversion
+		echo "-perf" > ${KERNEL_HYB}/localversion
 elif [ "$KERNEL_NAME" == "1" ];
 	then
-		echo "-キズナ" > ${KERNEL}/localversion
+		echo "-キズナ" > ${KERNEL_HYB}/localversion
 fi
 	echo "Restoring all config back to last revision !"
 }
@@ -585,8 +772,11 @@ elif [ "$KERNEL_CODENAME" == "1" ];
 		fi
 fi
 
-# Done
-cleanup
+if [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		# Done
+		cleanup
+fi
 }
 
 # Running

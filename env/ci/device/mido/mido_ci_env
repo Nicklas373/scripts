@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Set Kernel Specific Environment For CI
+CAF_CLONE_REPO="https://github.com/Nicklas373/kernel_xiaomi_msm8953-4.9"
+KIZUNA_CLONE_REPO="https://HANA-CI-Build-Project:$TOKEN@github.com/HANA-CI-Build-Project/msm-4.9"
+KERNEL="msm-4.9"
+IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"

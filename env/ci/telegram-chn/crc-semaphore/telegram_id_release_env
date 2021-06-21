@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set Telegram Group ID
+TELEGRAM_BOT_ID=${telegram_bot_id}
+TELEGRAM_GROUP_ID=${telegram_group_official_id}

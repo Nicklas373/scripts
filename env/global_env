@@ -5,8 +5,6 @@ export ARCH=arm64
 export SUBARCH=arm64
 
 # Global Kernel Environment
-ANYKERNEL="/build/nicklas/AnyKernel3"
-KERNEL_TEMP="/build/nicklas/TEMP"
 KERNEL_SCHED="EAS"
 KERNEL_SUFFIX="Kernel"
 KERNEL_DATE="$(date +%Y%m%d-%H%M)"

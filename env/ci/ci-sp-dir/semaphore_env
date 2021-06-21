@@ -1,0 +1,4 @@
+#!/bin/bash
+
+KERNEL_BOT="Semaphore-CI"
+KERNEL_CI_DIR="${pwd}"

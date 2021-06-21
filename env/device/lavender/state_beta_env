@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Set Kernel Release State
 KERNEL_RELEASE="BETA"
 KERNEL_RELEASE_NAME="Prinzessin der Verurteilung"
 KERNEL_VERSION="r12"

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Set Clang Environment
+CLANG_DIR="/root"
+export CLANG_PATH=${CLANG_DIR}/${CLANG_NAME}/bin
+export PATH=${CLANG_PATH}:${PATH}
+export LD_LIBRARY_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/../lib:$PATH"

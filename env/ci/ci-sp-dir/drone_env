@@ -1,0 +1,5 @@
+#!/bin/bash
+
+KERNEL_BOT="Drone-CI"
+KERNEL_CI_DIR="/drone/src/"
+

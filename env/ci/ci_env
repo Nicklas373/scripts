@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Set additional directory for CI
+WORK_DIR="scripts"
+MCN_DIR="ci"
+

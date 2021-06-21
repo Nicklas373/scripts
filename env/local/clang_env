@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Set Clang Environment
+CLANG_DIR="${WORK_DIR}/compiler"
 export CLANG_PATH=/build/compiler/${CLANG_NAME}/bin
 export PATH=${CLANG_PATH}:${PATH}
 export LD_LIBRARY_PATH="/build/compiler/${CLANG_NAME}/bin/../lib:$PATH"
