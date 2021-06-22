@@ -151,6 +151,15 @@ if [ "$KERNEL_CODENAME" == "0" ];
 		elif [ "$KERNEL_NAME" == "1" ];
 			then
 				source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_kizuna_env"
+
+				# Set specific branch
+				if [ "$KERNEL_STATE" == "0" ];
+					then
+						KERNEL_BRANCH="${KERNEL_BRANCH_DEV}"
+				elif [ "$KERNEL_STATE" == "1" ];
+					then
+						KERNEL_BRANCH="${KERNEL_BRANCH_REL}"
+				fi
 		fi
 
 		# Clone specific repo if compiled using CI

@@ -2,7 +2,7 @@
 
 # Specific Kernel Environment (Kizuna Kernel)
 KERNEL_BRANCH_DEV="staging/hoshizora"
-KERNEL_BRANCH="kizuna"
+KERNEL_BRANCH_REL="kizuna"
 KERNEL_RELEASE_NAME=" キズナ♪ || LTS "
 KERNEL_REV="r10"
 KERNEL_REL="Kizuna"
