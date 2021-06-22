@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Specific Kernel Environment (CAF Kernel)
-KERNEL_BRANCH="lineage-17.1"
+KERNEL_BRANCH="staging/lineage-17.1"
 KERNEL_REV="r12"
 KERNEL_REL="CAF"
 KERNEL_ALT="caf"
