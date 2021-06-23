@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Specific Kernel Environment (Kizuna Kernel)
-KERNEL_BRANCH_DEV="staging/hoshizora"
+KERNEL_BRANCH_DEV="staging/last"
 KERNEL_BRANCH_REL="kizuna"
-KERNEL_RELEASE_NAME=" キズナ♪ || LTS "
+KERNEL_RELEASE_NAME="FINAL"
 KERNEL_REV="r10"
 KERNEL_REL="Kizuna"
 KERNEL_ALT="kizuna"
