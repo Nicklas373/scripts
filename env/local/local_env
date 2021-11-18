@@ -1,4 +1,4 @@
 #!/bin/bash
 
-WORK_DIR="/build"
+WORK_DIR="/temp"
 MCN_DIR="local"
