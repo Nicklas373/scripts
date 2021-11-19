@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Local Kernel Specific Environment
-ANYKERNEL="/build/nicklas/AnyKernel3"
-KERNEL_TEMP="/build/nicklas/TEMP"
+ANYKERNEL="${HOME}/temp/AnyKernel3"
+KERNEL_TEMP="${HOME}/temp/TEMP"

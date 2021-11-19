@@ -1,4 +1,5 @@
 #!/bin/bash
 
-WORK_DIR="/build"
+WORK_DIR="${HOME}/temp"
+SCR_DIR="${HOME}/temp/script"
 MCN_DIR="local"

@@ -324,35 +324,35 @@ elif [ "$user" == "1" ];
 		echo "Configuring Build Script"
 		if [ "$kname" == "1" ];
 			then
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=0/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=0/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ${HOME}/temp/scripts/build
 		elif [ "$kname" == "2" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_NAME=2/KERNEL_NAME=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ${HOME}/temp/scripts/build
 		elif [ "$kname" == "3" ];
 			then
-				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_NAME=0/KERNEL_NAME=2/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_NAME=1/KERNEL_NAME=2/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_SCHED=0/KERNEL_SCHED=1/g'  ${HOME}/temp/scripts/build
 		fi
 		if [ "$avr" == "0" ];
 			then
-				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=0/g' ~/scripts/build
-				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=0/g' ~/scripts/build
+				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=0/g' ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=0/g' ${HOME}/temp/scripts/build
 		elif [ "$avr" == "1" ];
 			then
-				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' ~/scripts/build
-				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' ~/scripts/build
+				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' ${HOME}/temp/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CODENAME=1/KERNEL_CODENAME=0/g'  ${HOME}/temp/scripts/build
 		elif [ "$kdev" == "2" ];
 			then
-				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ${HOME}/temp/scripts/build
 				echo ""
 				echo "Want to use custom cam ?"
 				echo "1. yes"
@@ -361,69 +361,69 @@ elif [ "$user" == "1" ];
 				read -s cam
 				if [ "$cam" == "1" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ${HOME}/temp/scripts/build
 				elif [ "$cam" == "2" ];
 					then
-						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ${HOME}/temp/scripts/build
 				fi
 		fi
 		if [ "$krelease" == "1" ];
 			then
-				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_STATE=0/KERNEL_STATE=1/g'  ${HOME}/temp/scripts/build
 		elif [ "$krelease" == "2" ];
 			then
-				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_STATE=1/KERNEL_STATE=0/g'  ${HOME}/temp/scripts/build
 		fi
 		if [ "$comp" == "1" ];
 			then
-				sed -i -e 's/KERNEL_GCC=1/KERNEL_GCC=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=1/KERNEL_GCC=0/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  ${HOME}/temp/scripts/build
 		elif [ "$comp" == "2" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  ${HOME}/temp/scripts/build
 		elif [ "$comp" == "3" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  ${HOME}/temp/scripts/build
 		elif [ "$comp" == "4" ];
 			then
-				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  ~/scripts/build
-				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  ~/scripts/build
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  ${HOME}/temp/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  ${HOME}/temp/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
 				if [ "$overclock" == "0" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ${HOME}/temp/scripts/build
 				elif [ "$overclock" == "1" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ~/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'   ${HOME}/temp/scripts/build
 				fi
 		elif [ "$kdev" == "2" ];
 			then
 				if [ "$overclock" == "0" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ~/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=1/KERNEL_OVERCLOCK=0/g'   ${HOME}/temp/scripts/build
 				elif [ "$overclock" == "1" ];
 					then
-						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'	~/scripts/build
+						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'	${HOME}/temp/scripts/build
 				fi
 
 				if [ "$ts_common" == "1" ];
 					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	~/scripts/build
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	${HOME}/temp/scripts/build
 				elif [ "$ts_common" == "2" ];
 					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	~/scripts/build
+						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	${HOME}/temp/scripts/build
 				fi
 		fi
 		if [ "$srv_init" == "1" ];
@@ -431,17 +431,19 @@ elif [ "$user" == "1" ];
 				echo "Configuring CI Script"
 				if [ "$decision" == "1" ];
 					then
-						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=1/g'  ~/scripts/build
-						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=1/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=1/g'  ${HOME}/temp/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=1/g'  ${HOME}/temp/scripts/build
 				elif [ "$decision" == "2" ];
 					then
-						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=2/g'  ~/scripts/build
-						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=2/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=0/KERNEL_CI_SERVICE=2/g'  ${HOME}/temp/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=2/g'  ${HOME}/temp/scripts/build
 				elif [ "$decision" == "3" ];
 					then
-						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=0/g'  ~/scripts/build
-						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=0/g'  ~/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=2/KERNEL_CI_SERVICE=0/g'  ${HOME}/temp/scripts/build
+						sed -i -e 's/KERNEL_CI_SERVICE=1/KERNEL_CI_SERVICE=0/g'  ${HOME}/temp/scripts/build
 				fi
+
+				sed -i -e 's/KERNEL_MACHINE_ENV=1/KERNEL_MACHINE_ENV=0/g' ${HOME}/temp/scripts/build
 
 				echo "Triggering CI"
 
@@ -468,11 +470,13 @@ elif [ "$user" == "1" ];
 			then
 				if [ "$clean" == "1" ];
 					then
-						sed -i -e 's/KERNEL_CLEAN_BUILD=0/KERNEL_CLEAN_BUILD=1/g' ~/scripts/build
+						sed -i -e 's/KERNEL_CLEAN_BUILD=0/KERNEL_CLEAN_BUILD=1/g' ${HOME}/temp/scripts/build
 				elif [ "$clean" == "2" ];
 					then
-						sed -i -e 's/KERNEL_CLEAN_BUILD=1/KERNEL_CLEAN_BUILD=0/g' ~/scripts/build
+						sed -i -e 's/KERNEL_CLEAN_BUILD=1/KERNEL_CLEAN_BUILD=0/g' ${HOME}/temp/scripts/build
 				fi
+
+				sed -i -e 's/KERNEL_MACHINE_ENV=0/KERNEL_MACHINE_ENV=1/g' ${HOME}/temp/scripts/build
 
 				# Build decision
 				echo " "

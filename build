@@ -8,7 +8,7 @@
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Script Revision = 20210622
+# Script Revision = 20211119
 
 # Build Information
 #
@@ -76,7 +76,7 @@ function env_init() {
 if [ "$KERNEL_MACHINE_ENV" == "0" ];
 	then
 		# Set CI Service
-		source "scripts/env/ci/ci_env"
+		source "${HOME}/temp/scripts/env/ci/ci_env"
 
 		if [ "$KERNEL_CI_SERVICE" == "0" ];
 			then
@@ -114,7 +114,7 @@ if [ "$KERNEL_MACHINE_ENV" == "0" ];
 elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
 		# Set Build Status
-		source "build/env/local/local_env"
+		source "${HOME}/temp/scripts/env/local/local_env"
 
 		if [ "$KERNEL_CLEAN_BUILD" == "0" ];
 			then
@@ -328,9 +328,9 @@ if [ "$KERNEL_MACHINE_ENV" == "0" ];
 		TELEGRAM_BUILDER=$(cat builder)
 elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		rm /build/nicklas/builder
-		cat /proc/version > /build/nicklas/builder
-		TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
+		rm ${HOME}/temp/builder
+		cat /proc/version > ${HOME}/temp/builder
+		TELEGRAM_BUILDER=$(cat ${HOME}/temp/builder)
 fi
 }
 

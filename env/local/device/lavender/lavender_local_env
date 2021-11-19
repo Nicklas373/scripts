@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Set Kernel Specific Environment For Local
-KERNEL="/build/kernel/msm-4.4"
+KERNEL="${HOME}/temp/msm-4.4"
 IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
