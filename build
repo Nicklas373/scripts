@@ -8,7 +8,7 @@
 # Copyright 2016-2021, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Script Revision = 20210622
+# Script Revision = 20211208
 
 # Build Information
 #
@@ -55,17 +55,17 @@
 # 0 = Disable || 1 = Enable
 #
 # Declare Kernel Details
-KERNEL_NAME=0
+KERNEL_NAME=2
 KERNEL_SCHED=1
-KERNEL_STATE=1
-KERNEL_AVR=1
-KERNEL_CODENAME=0
+KERNEL_STATE=0
+KERNEL_AVR=0
+KERNEL_CODENAME=1
 KERNEL_CLANG=0
 KERNEL_GCC=0
-KERNEL_MACHINE_ENV=0
+KERNEL_MACHINE_ENV=1
 KERNEL_CI_SERVICE=0
-KERNEL_OVERCLOCK=0
-KERNEL_CLEAN_BUILD=1
+KERNEL_OVERCLOCK=1
+KERNEL_CLEAN_BUILD=0
 KERNEL_NEW_CAM=0
 KERNEL_LAVENDER_TS_COMMON=0
 
@@ -76,17 +76,20 @@ function env_init() {
 if [ "$KERNEL_MACHINE_ENV" == "0" ];
 	then
 		# Set CI Service
-		source "scripts/env/ci/ci_env"
+		MCN_DIR="ci"
 
 		if [ "$KERNEL_CI_SERVICE" == "0" ];
 			then
-				source "${WORK_DIR}/env/ci/ci-sp-dir/drone_env"
+				KERNEL_BOT="Drone-CI"
+				KERNEL_CI_DIR="/drone/src/"
 		elif [ "$KERNEL_CI_SERVICE" == "1" ];
 			then
-				source "${WORK_DIR}/env/ci/ci-sp-dir/circle_env"
+				KERNEL_BOT="Circle-CI"
+				KERNEL_CI_DIR="${pwd}"
 		elif [ "$KERNEL_CI_SERVICE" == "2" ];
 			then
-				source "${WORK_DIR}/env/ci/ci-sp-dir/semaphore_env"
+				KERNEL_BOT="Semaphore-CI"
+				KERNEL_CI_DIR="${pwd}"
 		fi
 
 		# Set TEMP Directory
@@ -99,22 +102,22 @@ if [ "$KERNEL_MACHINE_ENV" == "0" ];
 		if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "1" ];
 			then
 				# Import Telegram Token ID
-				source "${WORK_DIR}/env/${MCN_DIR}/token/drone-crc/token_id_env"
+				source "env/${MCN_DIR}/token/drone-crc/token_id_env"
 
 				# Import github token
 				TOKEN=${token}
 		elif [ "$KERNEL_CI_SERVICE" == "2" ];
 			then
 				# Import Telegram Token ID
-				source "${WORK_DIR}/env/${MCN_DIR}/token/semaphore/token_id_env"
+				source "env/${MCN_DIR}/token/semaphore/token_id_env"
 
 				# Import github token
 				TOKEN=${git_token}
 		fi
 elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		# Set Build Status
-		source "build/env/local/local_env"
+		# Set Work Directory
+		MCN_DIR="local"
 
 		if [ "$KERNEL_CLEAN_BUILD" == "0" ];
 			then
@@ -128,12 +131,12 @@ elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 		KERNEL_BOT="VPS"
 
 		# Import separate environment [Private env, SHOULDN'T BE UPLOADED :P]
-		source "${WORK_DIR}/env/${MCN_DIR}/telegram-chn/telegram_env"
-		source "${WORK_DIR}/env/${MCN_DIR}/telegram-chn/hash_env"
+		source "env/${MCN_DIR}/telegram-chn/telegram_env"
+		source "env/${MCN_DIR}/telegram-chn/hash_env"
 fi
 
 # Import global environment
-source "${WORK_DIR}/env/global_env"
+source "env/global_env"
 
 if [ "$KERNEL_CODENAME" == "0" ];
 	then
@@ -141,16 +144,16 @@ if [ "$KERNEL_CODENAME" == "0" ];
 		DEVICE_NAME="mido"
 
 		# Import device specific environment
-		source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_global_env"
+		source "env/device/${DEVICE_NAME}/mido_global_env"
 
 		# Import kernel specific environment
 		if [ "$KERNEL_NAME" == "0" ];
 			then
-				source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_caf_env"
+				source "env/device/${DEVICE_NAME}/mido_caf_env"
 
 		elif [ "$KERNEL_NAME" == "1" ];
 			then
-				source "${WORK_DIR}/env/device/${DEVICE_NAME}/mido_kizuna_env"
+				source "env/device/${DEVICE_NAME}/mido_kizuna_env"
 
 				# Set specific branch
 				if [ "$KERNEL_STATE" == "0" ];
@@ -165,8 +168,12 @@ if [ "$KERNEL_CODENAME" == "0" ];
 		# Clone specific repo if compiled using CI
 		if [ "$KERNEL_MACHINE_ENV" == "0" ];
 			then
-				source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/mido_ci_env"
-				source "${WORK_DIR}/env/${MCN_DIR}/anykernel_env"
+				source "env/${MCN_DIR}/device/${DEVICE_NAME}/mido_ci_env"
+				source "env/${MCN_DIR}/anykernel_env"
+
+				# Configure device specific directory
+				KERNEL="msm-4.9"
+				IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
 
 				# Detect kernel repo at first
 				if [ "$KERNEL_NAME" == "0" ];
@@ -183,6 +190,11 @@ if [ "$KERNEL_CODENAME" == "0" ];
 				# Cloning AnyKernel Repository
 				git clone --depth=1 -b ${ANYKERNEL_BRANCH} ${ANYKERNEL_CLONE_REPO}
 
+		elif [ "$KERNEL_MACHINE_ENV" == "1" ]
+			then
+				# Configure device specific directory
+				KERNEL="${HOME}/kernel/msm-4.9"
+				IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
 		fi
 elif [ "$KERNEL_CODENAME" == "1" ];
 	then
@@ -190,20 +202,29 @@ elif [ "$KERNEL_CODENAME" == "1" ];
 		DEVICE_NAME="lavender"
 
 		# Import device specific environment
-		source "${WORK_DIR}/env/device/${DEVICE_NAME}/lavender_global_env"
+		source "env/device/${DEVICE_NAME}/lavender_global_env"
 
-		# Clone specific repo if compiled using CI
+		# Set specific directory for each environment
 		if [ "$KERNEL_MACHINE_ENV" == "0" ];
 			then
 				if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
 					then
-						source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/drone-semaphore/lavender_ci_env"
+						source "env/${MCN_DIR}/device/${DEVICE_NAME}/drone-semaphore/lavender_ci_env"
+
+						# Configure device specific directory
+						KERNEL="msm-4.4"
+						IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
 				elif [ "$KERNEL_CI_SERVICE" == "1" ];
 					then
-						source "${WORK_DIR}/env/${MCN_DIR}/device/${DEVICE_NAME}/crc/lavender_ci_env"
+						source "env/${MCN_DIR}/device/${DEVICE_NAME}/crc/lavender_ci_env"
+
+						# Configure device specific directory
+						KERNEL="${pwd}"
+						IMAGE="${pwd}/out/arch/arm64/boot/Image.gz-dtb"
 				fi
 
-				source "${WORK_DIR}/env/${MCN_DIR}/anykernel_env"
+				# Import anykernel environment
+				source "env/${MCN_DIR}/anykernel_env"
 
 				if [ "$KERNEL_CI_SERVICE" == "0" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
 					then
@@ -211,19 +232,35 @@ elif [ "$KERNEL_CODENAME" == "1" ];
 						git clone --depth=1 -b ${KERNEL_BRANCH} ${FUSION_CLONE_REPO} ${KERNEL}
 				fi
 
-				# Cloning AnyKernel Repository
+				# Cloning anykernel repository
 				git clone --depth=1 -b ${ANYKERNEL_BRANCH} ${ANYKERNEL_CLONE_REPO}
 
+		elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+			then
+				# Kernel environment
+				KERNEL="${HOME}/kernel/msm-4.4"
+				IMAGE="${KERNEL}/out/arch/arm64/boot/Image.gz-dtb"
 		fi
+fi
+
+# Import anykernel environment
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
+	then
+		ANYKERNEL="AnyKernel3"
+		KERNEL_TEMP="TEMP"
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		ANYKERNEL="${HOME}/tools/AnyKernel3"
+		KERNEL_TEMP="${HOME}/tools/TEMP"
 fi
 
 # Import kernel clock environment
 if [ "$KERNEL_OVERCLOCK" == "0" ];
 	then
-		source "${WORK_DIR}/env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
+		source "env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_normal_env"
 elif [ "$KERNEL_OVERCLOCK" == "1" ];
 	then
-		source "${WORK_DIR}/env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_oc_env"
+		source "env/device/${DEVICE_NAME}/${DEVICE_NAME}_clock_oc_env"
 fi
 
 # Import kernel release environment
@@ -236,7 +273,7 @@ elif [ "$KERNEL_STATE" == "1" ];
 fi
 
 # Set kernel release environment
-source "${WORK_DIR}/env/device/${DEVICE_NAME}/state_${STATE}_env"
+source "env/device/${DEVICE_NAME}/state_${STATE}_env"
 
 # Import Telegram CI Notification
 if [ "$KERNEL_CI_SERVICE" == "1" ] || [ "$KERNEL_CI_SERVICE" == "2" ];
@@ -250,19 +287,19 @@ fi
 # Set telegram CI service
 if [ "$KERNEL_MACHINE_ENV" == "0" ];
 	then
-		source "${WORK_DIR}/env/$MCN_DIR/telegram-chn/${CIS}/telegram_id_${STATE}_env"
+		source "env/$MCN_DIR/telegram-chn/${CIS}/telegram_id_${STATE}_env"
 elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		source "${WORK_DIR}/env/$MCN_DIR/telegram-chn/telegram_id_${STATE}_env"
+		source "env/$MCN_DIR/telegram-chn/telegram_id_${STATE}_env"
 fi
 
 # Import kernel android environment
 if [ "$KERNEL_AVR" == "0" ];
 	then
-		source "${WORK_DIR}/env/avr_q_env"
+		source "env/avr_q_env"
 elif [ "$KERNEL_AVR" == "1" ];
 	then
-		source "${WORK_DIR}/env/avr_r_env"
+		source "env/avr_r_env"
 fi
 
 # Define kernel clang version
@@ -281,12 +318,32 @@ elif [ "$KERNEL_CLANG" == "3" ];
 fi
 
 # Import kernel clang environment
-source "${WORK_DIR}/env/${MCN_DIR}/clang_env"
+if [ "$KERNEL_MACHINE_ENV" == "0" ];
+	then
+		CLANG_DIR="/root"
+		export CLANG_PATH=${CLANG_DIR}/${CLANG_NAME}/bin
+		export PATH=${CLANG_PATH}:${PATH}
+		export LD_LIBRARY_PATH="${CLANG_DIR}/${CLANG_NAME}/bin/../lib:$PATH"
+elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+	then
+		CLANG_DIR="${HOME}/compiler"
+		export CLANG_PATH=${HOME}/compiler/${CLANG_NAME}/bin
+		export PATH=${CLANG_PATH}:${PATH}
+		export LD_LIBRARY_PATH="${HOME}/compiler/${CLANG_NAME}/bin/../lib:$PATH"
+fi
 
+# Import kernel gcc environment
 if [ "$KERNEL_GCC" == "1" ];
 	then
-		# Import kernel gcc environment
-		source "${WORK_DIR}/env/${MCN_DIR}/gcc_env"
+		if [ "$KERNEL_MACHINE_ENV" == "0" ];
+			then
+				export CROSS_COMPILE=/root/gcc_4.9_64/arm64/bin/aarch64-linux-android-
+				export CROSS_COMPILE_ARM32=/root/gcc_4.9/arm/bin/arm-linux-androideabi-
+		elif [ "$KERNEL_MACHINE_ENV" == "1" ];
+			then
+				export CROSS_COMPILE=${HOME}/compiler/gcc_4.9_64/arm64/bin/aarch64-linux-android-
+				export CROSS_COMPILE_ARM32=${HOME}/compiler/gcc_4.9/arm/bin/arm-linux-androideabi-
+		fi
 fi
 
 # Set hybrid aliases path directory
@@ -310,13 +367,13 @@ elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
 		# Declare important mixed dir
 		KERNEL_HYB="${KERNEL}"
-		KERNEL_IMAGE_HYB="${KERNEL_HYB}/${IMAGE}"
-		KERNEL_AK_HYB="${KERNEL_HYB}/${ANYKERNEL}"
-		KERNEL_TEMP_HYB="${KERNEL_HYB}/${ANYKERNEL}"
+		KERNEL_IMAGE_HYB="${IMAGE}"
+		KERNEL_AK_HYB="${ANYKERNEL}"
+		KERNEL_TEMP_HYB="${KERNEL_TEMP}"
 fi
 
 # Set telegram global environment
-source "${WORK_DIR}/env/telegram_global_env"
+source "env/telegram_global_env"
 
 }
 
@@ -328,9 +385,9 @@ if [ "$KERNEL_MACHINE_ENV" == "0" ];
 		TELEGRAM_BUILDER=$(cat builder)
 elif [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
-		rm /build/nicklas/builder
-		cat /proc/version > /build/nicklas/builder
-		TELEGRAM_BUILDER=$(cat /build/nicklas/builder)
+		rm ${HOME}/tools/builder
+		cat /proc/version > ${HOME}/tools/builder
+		TELEGRAM_BUILDER=$(cat ${HOME}/tools/builder)
 fi
 }
 
@@ -553,6 +610,7 @@ fi
 function compile_lave() {
 	START=$(date +"%s")
 	cd ${KERNEL_HYB}
+	echo ${KERNEL_HYB}
 if [ "$KERNEL_MACHINE_ENV" == "1" ];
 	then
 		git checkout ${KERNEL_BRANCH}
@@ -752,7 +810,7 @@ if [ "$KERNEL_CODENAME" == "0" ];
 	then
 		rm ${KERNEL_HYB}/localversion
 fi
-	cp /build/nicklas/backup/${CODENAME}/${KERNEL_ALT}/${CODENAME}_defconfig ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
+	cp ${HOME}/tools/backup/${CODENAME}/${KERNEL_ALT}/${CODENAME}_defconfig ${KERNEL}/arch/arm64/configs/${CODENAME}_defconfig
 if [ "$KERNEL_NAME" == "0" ];
 	then
 		echo "-perf" > ${KERNEL_HYB}/localversion

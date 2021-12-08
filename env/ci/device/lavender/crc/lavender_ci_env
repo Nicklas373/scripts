@@ -2,5 +2,3 @@
 
 # Set Kernel Specific Environment For CI
 FUSION_CLONE_REPO="https://HANA-CI-Build-Project:$TOKEN@github.com/HANA-CI-Build-Project/kernel_xiaomi_lavender-4.4"
-KERNEL="${pwd}"
-IMAGE="${pwd}/out/arch/arm64/boot/Image.gz-dtb"

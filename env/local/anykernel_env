@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Local Kernel Specific Environment
-ANYKERNEL="/build/nicklas/AnyKernel3"
-KERNEL_TEMP="/build/nicklas/TEMP"

@@ -1,6 +1,4 @@
 #!/bin/bash
 
 # CI Kernel Specific Environment
-ANYKERNEL="AnyKernel3"
 ANYKERNEL_CLONE_REPO="https://github.com/Nicklas373/AnyKernel3"
-KERNEL_TEMP="TEMP"

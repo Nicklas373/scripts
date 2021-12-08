@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Set GCC Environment
-export CROSS_COMPILE=/root/gcc_4.9_64/arm64/bin/aarch64-linux-android-
-export CROSS_COMPILE_ARM32=/root/gcc_4.9/arm/bin/arm-linux-androideabi-
