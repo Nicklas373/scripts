@@ -30,7 +30,7 @@ elif [ "$srv" == "2" ];
 	then
 		srv_init="2"
 		services="Cloud Server"
-		bot="Cloud Server"
+		bot="Not Used"
 
 		# Run Local step
 		kdev
@@ -230,6 +230,7 @@ echo "1. Proton Clang 13"
 echo "2. AOSP Clang + GCC 4.9 (Non-elf)"
 echo "3. SDCLANG 12.1.1 + GCC 4.9 (Non-elf)"
 echo "4. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+echo "5. SDCLANG 14.0.0 + GCC 4.9 (Non-elf)"
 echo ""
 echo "NOTE: Write number only !"
 read -s clang
@@ -250,6 +251,10 @@ elif [ "$clang" == "4" ];
 	then
 		comp="4"
 		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+elif [ "$clang" == "5" ];
+	then
+		comp="5"
+		ext_clang="SDCLANG 14.0.0 + GCC 4.9 (Non-elf)"
 fi
 
 if [ "$srv_init" == "1" ];
@@ -380,24 +385,35 @@ elif [ "$user" == "1" ];
 				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=0/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=0/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=0/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=4/KERNEL_CLANG=0/g'  ${HOME}/tools/scripts/build
 		elif [ "$comp" == "2" ];
 			then
 				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=1/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=1/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=1/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=4/KERNEL_CLANG=1/g'  ${HOME}/tools/scripts/build
 		elif [ "$comp" == "3" ];
 			then
 				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=2/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=2/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=2/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=4/KERNEL_CLANG=2/g'  ${HOME}/tools/scripts/build
 		elif [ "$comp" == "4" ];
 			then
 				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=3/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=3/g'  ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=3/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=4/KERNEL_CLANG=3/g'  ${HOME}/tools/scripts/build
+		elif [ "$comp" == "5" ];
+			then
+				sed -i -e 's/KERNEL_GCC=0/KERNEL_GCC=1/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=0/KERNEL_CLANG=4/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=1/KERNEL_CLANG=4/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=2/KERNEL_CLANG=4/g'  ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_CLANG=3/KERNEL_CLANG=4/g'  ${HOME}/tools/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then

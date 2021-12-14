@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Set Build Host
+export KBUILD_BUILD_USER=Nicklas373
 
 # Set Kernel Specific Environment (Fusion-Lavender)
 ANYKERNEL_BRANCH="lavender"
 CODENAME="lavender"
 KERNEL_CODE="Lavender"
 KERNEL_BRANCH="fusion-nodebug"
-KERNEL_REV="r13-UNRELEASED"
+KERNEL_REV="r13"
 KERNEL_HASH=${FUSION_LAVENDER_HASH}
 KERNEL_CAF_TAG="LA.UM.8.2.r2-04900-sdm660.0"
 KERNEL_REL="Fusion"
