@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set Android 12 Environment
+KERNEL_ANDROID_VER="12"
+KERNEL_TAG="S"

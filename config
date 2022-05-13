@@ -4,10 +4,10 @@
 #
 # Copyright 2019, alanndz <alanmahmud0@gmail.com>
 # Copyright 2021, Dicky Herlambang "Nicklas373" <herlambangdicky5@gmail.com>
-# Copyright 2016-2021, HANA-CI Build Project
+# Copyright 2016-2022, HANA-CI Build Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Script Revision = 20211208
+# Script Revision = 20220503
 
 # Begin configuration
 function init() {
@@ -131,9 +131,9 @@ if [ "$kdev" == "1" ];
 elif [ "$kdev" == "2" ];
 	then
 		echo ""
-		name="Fusion Kernel"
+		name="Kizuna Kernel"
 		kname="3"
-		echo "Fusion Kernel (@Alanndz & Nicklas373)"
+		echo "Kizuna Kernel"
 		echo ""
 		echo "Overclock Version ?"
 		echo "1. Yes"
@@ -155,22 +155,6 @@ elif [ "$kdev" == "2" ];
 		g_clock="0"
 		gpu_clock="false"
 
-		echo ""
-		echo "Use Common Touchscreen nodes ?"
-		echo ""
-		echo "1. Yes"
-		echo "2. No"
-		echo ""
-		echo "NOTE: Write Number only!"
-		read -s ts_node
-
-		if [ "$ts_node" == "1" ];
-			then
-				ts_common="1"
-		elif [ "$ts_node" == "2" ];
-			then
-				ts_common="2"
-		fi
 fi
 
 # Run next step
@@ -204,6 +188,7 @@ echo ""
 echo "Select your android version"
 echo "1. 10"
 echo "2. 11"
+echo "3. 12"
 echo ""
 echo "NOTE: Write number only !"
 read -s version_avr
@@ -216,6 +201,10 @@ elif [ "$version_avr" == "2" ];
 	then
 		avr="1"
 		avr_str="Android 11.0"
+elif [ "$version_avr" == "3" ];
+	then
+		avr="2"
+		avr_str="Android 12.0"
 fi
 
 # Run next step
@@ -227,10 +216,10 @@ echo ""
 echo "Select your compiler :3"
 echo ""
 echo "1. Proton Clang 13"
-echo "2. AOSP Clang + GCC 4.9 (Non-elf)"
+echo "2. AOSP Clang 12.0.0 + GCC 4.9 (Non-elf)"
 echo "3. SDCLANG 12.1.1 + GCC 4.9 (Non-elf)"
-echo "4. SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
-echo "5. SDCLANG 14.0.0 + GCC 4.9 (Non-elf)"
+echo "4. SDCLANG 14.1.0 + GCC 4.9 (Non-elf)"
+echo "5. Dora Clang 15.0.0"
 echo ""
 echo "NOTE: Write number only !"
 read -s clang
@@ -242,7 +231,7 @@ if [ "$clang" == "1" ];
 elif [ "$clang" == "2" ];
 	then
 		comp="2"
-		ext_clang="AOSP Clang + GCC 4.9 (Non-elf)"
+		ext_clang="AOSP Clang 12.0.0 + GCC 4.9 (Non-elf)"
 elif [ "$clang" == "3" ];
 	then
 		comp="3"
@@ -250,11 +239,11 @@ elif [ "$clang" == "3" ];
 elif [ "$clang" == "4" ];
 	then
 		comp="4"
-		ext_clang="SDCLANG 10.0.9 + GCC 4.9 (Non-elf)"
+		ext_clang="SDCLANG 14.1.0 + GCC 4.9 (Non-elf)"
 elif [ "$clang" == "5" ];
 	then
 		comp="5"
-		ext_clang="SDCLANG 14.0.0 + GCC 4.9 (Non-elf)"
+		ext_clang="Dora Clang 15.0.0"
 fi
 
 if [ "$srv_init" == "1" ];
@@ -351,6 +340,10 @@ elif [ "$user" == "1" ];
 			then
 				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=1/g' ${HOME}/tools/scripts/build
 				sed -i -e 's/KERNEL_AVR=2/KERNEL_AVR=1/g' ${HOME}/tools/scripts/build
+		elif [ "$avr" == "2" ];
+			then
+				sed -i -e 's/KERNEL_AVR=0/KERNEL_AVR=2/g' ${HOME}/tools/scripts/build
+				sed -i -e 's/KERNEL_AVR=1/KERNEL_AVR=2/g' ${HOME}/tools/scripts/build
 		fi
 		if [ "$kdev" == "1" ];
 			then
@@ -358,19 +351,6 @@ elif [ "$user" == "1" ];
 		elif [ "$kdev" == "2" ];
 			then
 				sed -i -e 's/KERNEL_CODENAME=0/KERNEL_CODENAME=1/g'  ${HOME}/tools/scripts/build
-				echo ""
-				echo "Want to use custom cam ?"
-				echo "1. yes"
-				echo "2. no"
-				echo "NOTE: Choose number only! "
-				read -s cam
-				if [ "$cam" == "1" ];
-					then
-						sed -i -e 's/KERNEL_NEW_CAM=0/KERNEL_NEW_CAM=1/g'  ${HOME}/tools/scripts/build
-				elif [ "$cam" == "2" ];
-					then
-						sed -i -e 's/KERNEL_NEW_CAM=1/KERNEL_NEW_CAM=0/g'  ${HOME}/tools/scripts/build
-				fi
 		fi
 		if [ "$krelease" == "1" ];
 			then
@@ -432,14 +412,6 @@ elif [ "$user" == "1" ];
 				elif [ "$overclock" == "1" ];
 					then
 						sed -i -e 's/KERNEL_OVERCLOCK=0/KERNEL_OVERCLOCK=1/g'	${HOME}/tools/scripts/build
-				fi
-
-				if [ "$ts_common" == "1" ];
-					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=0/KERNEL_LAVENDER_TS_COMMON=1/g'	${HOME}/tools/scripts/build
-				elif [ "$ts_common" == "2" ];
-					then
-						sed -i -e 's/KERNEL_LAVENDER_TS_COMMON=1/KERNEL_LAVENDER_TS_COMMON=0/g'	${HOME}/tools/scripts/build
 				fi
 		fi
 		if [ "$srv_init" == "1" ];

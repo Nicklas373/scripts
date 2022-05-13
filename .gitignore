@@ -1,3 +1,4 @@
 telegram
-hash
-env/local/telegram-chn/telegram_env
+env/local/telegram-chn/hash_env
+env/local/telegram-chn/telegram_id_beta_env
+env/local/telegram-chn/telegram_id_release_env

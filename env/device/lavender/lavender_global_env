@@ -4,13 +4,13 @@
 export KBUILD_BUILD_USER=Nicklas373
 
 # Set Kernel Specific Environment (Fusion-Lavender)
-ANYKERNEL_BRANCH="lavender"
+ANYKERNEL_BRANCH="caf/lavender-kizuna-4.4"
 CODENAME="lavender"
 KERNEL_CODE="Lavender"
-KERNEL_BRANCH="fusion-nodebug"
-KERNEL_REV="r13"
-KERNEL_HASH=${FUSION_LAVENDER_HASH}
-KERNEL_CAF_TAG="LA.UM.8.2.r2-04900-sdm660.0"
-KERNEL_REL="Fusion"
-KERNEL_ALT="fusion"
+KERNEL_BRANCH="staging/kizuna"
+KERNEL_REV="r2"
+KERNEL_HASH=${KIZUNA_LAVENDER_HASH}
+KERNEL_CAF_TAG="LA.UM.9.2.r1-03700-SDMxx0.0"
+KERNEL_REL="Kizuna"
+KERNEL_ALT="kizuna"
 TELEGRAM_DEVICE="Xiaomi Redmi Note 7"

@@ -2,7 +2,7 @@
 
 # Specific Kernel Environment (CAF Kernel)
 KERNEL_BRANCH="lineage-17.1"
-KERNEL_REV="r12"
+KERNEL_REV="r13"
 KERNEL_REL="CAF"
 KERNEL_ALT="caf"
 KERNEL_RELEASE_NAME=" ~ FUTURITY SMILE ~ || LTS "

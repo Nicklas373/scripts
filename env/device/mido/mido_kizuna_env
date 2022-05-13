@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Specific Kernel Environment (Kizuna Kernel)
-KERNEL_BRANCH_DEV="kizuna"
-KERNEL_BRANCH_REL="kizuna"
+KERNEL_BRANCH_DEV="staging/upstream-kizuna"
+KERNEL_BRANCH_REL="staging/upstream-kizuna"
 KERNEL_RELEASE_NAME=" ~ FUTURITY SMILE ~ || LTS"
-KERNEL_REV="r10"
+KERNEL_REV="r11"
 KERNEL_REL="Kizuna"
 KERNEL_ALT="kizuna"
 KERNEL_HASH=${KIZUNA_MIDO_HASH}
